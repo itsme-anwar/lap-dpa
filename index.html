@@ -1,0 +1,3471 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SIM-DPA | Dashboard Kendali & Monitoring Anggaran DPA</title>
+  <!-- Google Fonts: Inter & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #047857; /* Emerald 700 */
+      --primary-hover: #065f46;
+      --primary-light: #ecfdf5;
+      --secondary: #0284c7; /* Sky 600 */
+      --accent: #f59e0b; /* Amber 500 */
+      --danger: #ef4444; /* Rose 500 */
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Print styling strictly for clean functional internal tables */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+        font-size: 11pt;
+      }
+      .no-print, header, .sidebar-nav, .action-buttons, .modal-backdrop, .toast-container, .role-badge-box, .btn, .search-box-wrap {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      .main-content {
+        margin: 0 !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      .card {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 9.5pt !important;
+      }
+      th, td {
+        border: 1px solid #94a3b8 !important;
+        padding: 5px 8px !important;
+      }
+      th {
+        background-color: #f1f5f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .print-header {
+        display: block !important;
+        margin-bottom: 20px;
+        text-align: center;
+        border-bottom: 2px solid #0f172a;
+        padding-bottom: 12px;
+      }
+      .print-footer-signature {
+        display: flex !important;
+        justify-content: space-between;
+        margin-top: 40px;
+        page-break-inside: avoid;
+      }
+    }
+
+    .print-only {
+      display: none;
+    }
+
+    /* Layout Components */
+    .app-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: #0f172a; /* Slate 900 */
+      color: #f8fafc;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+      z-index: 40;
+    }
+
+    .sidebar-header {
+      padding: 1.25rem 1.25rem;
+      border-bottom: 1px solid #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #059669, #0284c7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 800;
+      font-size: 1.1rem;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+    }
+
+    .sidebar-menu {
+      padding: 1rem 0.75rem;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      flex: 1;
+    }
+
+    .sidebar-menu a {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.7rem 0.9rem;
+      color: #94a3b8;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-menu a:hover {
+      background-color: #1e293b;
+      color: #f1f5f9;
+    }
+
+    .sidebar-menu a.active {
+      background-color: #047857;
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(4, 120, 87, 0.3);
+    }
+
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      background-color: #f8fafc;
+    }
+
+    /* Top Navbar */
+    .top-navbar {
+      height: 68px;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Year Switcher */
+    .year-switcher-box {
+      display: flex;
+      align-items: center;
+      background: #f1f5f9;
+      padding: 0.35rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      gap: 0.5rem;
+    }
+
+    .year-select {
+      background: transparent;
+      border: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #0f172a;
+      cursor: pointer;
+      outline: none;
+    }
+
+    /* Role Pill Switcher */
+    .role-switcher {
+      display: flex;
+      background: #f1f5f9;
+      padding: 3px;
+      border-radius: 30px;
+      border: 1px solid #cbd5e1;
+    }
+
+    .role-btn {
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
+      border: none;
+      background: transparent;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .role-btn.active.admin {
+      background: #047857;
+      color: white;
+      box-shadow: 0 2px 6px rgba(4, 120, 87, 0.3);
+    }
+
+    .role-btn.active.viewer {
+      background: #0284c7;
+      color: white;
+      box-shadow: 0 2px 6px rgba(2, 132, 199, 0.3);
+    }
+
+    /* Content Area */
+    .main-content {
+      padding: 1.75rem;
+      flex: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Card standard */
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .kpi-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.15rem 1.25rem;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px -4px rgba(0,0,0,0.06);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+    }
+
+    .kpi-card.pagu::before { background: #3b82f6; }
+    .kpi-card.realisasi::before { background: #10b981; }
+    .kpi-card.sisa::before { background: #f59e0b; }
+    .kpi-card.persen::before { background: #8b5cf6; }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: -0.02em;
+    }
+
+    .kpi-sub {
+      font-size: 0.775rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      width: 100%;
+      height: 8px;
+      background: #e2e8f0;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.25rem;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #059669);
+      border-radius: 999px;
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .progress-fill.warning {
+      background: linear-gradient(90deg, #f59e0b, #d97706);
+    }
+
+    .progress-fill.danger {
+      background: linear-gradient(90deg, #ef4444, #b91c1c);
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+      gap: 0.3rem;
+      white-space: nowrap;
+    }
+
+    .badge-success { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+    .badge-warning { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+    .badge-info { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-slate { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 0.95rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+      line-height: 1.25;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: #047857;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #065f46;
+      box-shadow: 0 4px 10px rgba(4, 120, 87, 0.25);
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #334155;
+      border-color: #cbd5e1;
+    }
+    .btn-secondary:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-outline-primary {
+      background: transparent;
+      border-color: #047857;
+      color: #047857;
+    }
+    .btn-outline-primary:hover {
+      background: #ecfdf5;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-sm {
+      padding: 0.35rem 0.6rem;
+      font-size: 0.775rem;
+      border-radius: 6px;
+    }
+
+    .btn:disabled, .btn[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Tables */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    table.data-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      text-transform: uppercase;
+      font-size: 0.725rem;
+      letter-spacing: 0.05em;
+    }
+
+    table.data-table td {
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      vertical-align: middle;
+    }
+
+    table.data-table tbody tr.subkeg-row:hover {
+      background-color: #f8fafc;
+    }
+
+    table.data-table .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ================= SUB-KEGIATAN DRILLDOWN STYLES ================= */
+    .subkeg-row {
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+    }
+
+    .subkeg-row:hover {
+      background-color: #f0fdf4 !important;
+    }
+
+    .subkeg-row.expanded {
+      background-color: #f0fdf4 !important;
+      border-bottom-color: transparent !important;
+    }
+
+    /* Highlight & Clean Card for Program, Kegiatan, Sub-Kegiatan per Baris */
+    .subkeg-clean-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #047857;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+
+    .subkeg-row:hover .subkeg-clean-card {
+      border-color: #cbd5e1;
+      border-left-color: #059669;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Baris 1: PROGRAM */
+    .subkeg-line-program {
+      font-size: 0.75rem;
+      color: #64748b;
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      line-height: 1.35;
+    }
+    .subkeg-line-program .line-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #94a3b8;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .subkeg-line-program .line-text {
+      font-weight: 500;
+      color: #475569;
+    }
+
+    /* Baris 2: KEGIATAN */
+    .subkeg-line-kegiatan {
+      font-size: 0.8rem;
+      color: #334155;
+      display: flex;
+      align-items: baseline;
+      gap: 0.4rem;
+      line-height: 1.35;
+    }
+    .subkeg-line-kegiatan .line-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #64748b;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .subkeg-line-kegiatan .line-text {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    /* Baris 3: SUB-KEGIATAN (Ukuran font lebih besar, tebal dan tegas) */
+    .subkeg-line-subkeg {
+      margin: 0.15rem 0 0.1rem 0;
+      line-height: 1.35;
+    }
+    .subkeg-main-title {
+      font-size: 1.05rem; /* Ukuran font lebih besar dr program & kegiatan */
+      font-weight: 800;
+      color: #064e3b;
+      letter-spacing: -0.015em;
+      display: block;
+    }
+
+    /* Baris 4: STATUS & JUMLAH BELANJA (Proporsional) */
+    .subkeg-line-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.15rem;
+      flex-wrap: wrap;
+    }
+    .subkeg-line-status .badge {
+      font-size: 0.725rem;
+      padding: 0.22rem 0.6rem;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .subkeg-click-hint {
+      font-size: 0.725rem;
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    .expand-toggle-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: #047857;
+      transition: transform 0.2s ease, background-color 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .subkeg-row.expanded .expand-toggle-icon {
+      transform: rotate(90deg);
+      background: #10b981;
+      color: white;
+    }
+
+    /* Nested Detail Row Container */
+    .subkeg-detail-row {
+      background-color: #f8fafc;
+    }
+
+    .subkeg-detail-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      margin: 0.35rem 0.75rem 1.25rem 0.75rem;
+      box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+      border-left: 4px solid #0284c7;
+    }
+
+    .detail-box-header {
+      background: #f1f5f9;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .detail-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.825rem;
+    }
+
+    .detail-table th {
+      background: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      padding: 0.6rem 0.85rem;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.725rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .detail-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+    }
+
+    .detail-table tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* Modals */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(3px);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-dialog {
+      background: white;
+      border-radius: 14px;
+      width: 100%;
+      max-width: 650px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+      transform: scale(0.96);
+      transition: transform 0.2s ease;
+    }
+
+    .modal-backdrop.active .modal-dialog {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 10;
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      background: #f8fafc;
+      border-radius: 0 0 14px 14px;
+    }
+
+    /* Forms */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 0.35rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.875rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      color: #0f172a;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+      background: white;
+      font-family: inherit;
+    }
+
+    .form-control:focus {
+      border-color: #047857;
+      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.15);
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Toast Notification */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      padding: 0.75rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      background: #1e293b;
+      color: white;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      animation: slideIn 0.2s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .role-badge-box {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.775rem;
+      font-weight: 600;
+    }
+
+    .role-badge-admin {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .role-badge-viewer {
+      background: #eff6ff;
+      color: #0284c7;
+      border: 1px solid #bfdbfe;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
+    }
+
+    .drop-zone {
+      border: 2px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: #047857;
+      background: #ecfdf5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PRINT ONLY HEADER -->
+  <div class="print-only print-header">
+    <h2 style="font-size: 16pt; font-weight: bold; margin-bottom: 4px;">PEMERINTAH DAERAH PROVINSI / KABUPATEN / KOTA</h2>
+    <h3 style="font-size: 13pt; font-weight: 600; margin-bottom: 2px;">DINAS INTERNAL KENDALI ANGGARAN (SKPD)</h3>
+    <h4 style="font-size: 11pt; font-weight: normal;" id="printReportSubtitle">LAPORAN MONITORING & REALISASI ANGGARAN DPA TAHUN ANGGARAN 2026</h4>
+    <p style="font-size: 9pt; color: #475569; margin-top: 4px;" id="printReportTimestamp"></p>
+  </div>
+
+  <div class="app-container">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">DPA</div>
+        <div>
+          <h1 style="font-size: 0.95rem; font-weight: 700; color: white;">SIM-DPA Internal</h1>
+          <p style="font-size: 0.7rem; color: #94a3b8;">Sistem Kendali Anggaran</p>
+        </div>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li>
+          <a class="nav-item active" data-tab="dashboard">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="7" height="9" x="3" y="3" rx="1"/><rect width="7" height="5" x="14" y="3" rx="1"/><rect width="7" height="9" x="14" y="12" rx="1"/><rect width="7" height="5" x="3" y="16" rx="1"/></svg>
+            <span>Dashboard Ringkasan</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-tab="master-dpa">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            <span>Master DPA (Sub-Kegiatan)</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-tab="realisasi">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span>Pencatatan Realisasi (SP2D)</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-tab="laporan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Laporan Rekapitulasi</span>
+          </a>
+        </li>
+        <li>
+          <a class="nav-item" data-tab="arsip-historis">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Arsip Multi-Tahun</span>
+          </a>
+        </li>
+        
+        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid #1e293b;">
+          <li>
+            <a onclick="openSupabaseModal()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              <span>Konfigurasi Supabase</span>
+            </a>
+          </li>
+        </div>
+      </ul>
+
+      <div style="padding: 1rem; background: #0b1322; border-top: 1px solid #1e293b; font-size: 0.75rem; color: #64748b;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <span>Database Mode:</span>
+          <span id="storageBadge" class="badge badge-success" style="font-size: 0.65rem;">LocalStorage</span>
+        </div>
+        <div style="font-size: 0.7rem; color: #94a3b8;">Ver 2.5 - Drilldown Sub-Kegiatan</div>
+      </div>
+    </aside>
+
+    <!-- MAIN WRAPPER -->
+    <div class="main-wrapper">
+      <!-- TOP NAVBAR -->
+      <header class="top-navbar no-print">
+        <div class="nav-left">
+          <!-- Year Selector -->
+          <div class="year-switcher-box" title="Pilih Tahun Anggaran DPA">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #475569;">Tahun:</span>
+            <select id="selectTahunAnggaran" class="year-select" onchange="changeFiscalYear(this.value)">
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026" selected>2026 (Aktif)</option>
+              <option value="2027">2027 (Rancangan)</option>
+            </select>
+          </div>
+
+          <div id="roleIndicator" class="role-badge-box role-badge-admin">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #047857;"></span>
+            <span>Akses: <strong id="currentRoleText">Admin / Operator</strong> (Full Access)</span>
+          </div>
+        </div>
+
+        <div class="nav-right">
+          <!-- Role Switcher Toggle -->
+          <div class="role-switcher" title="Simulasi Pergantian Hak Akses Pengguna">
+            <button class="role-btn active admin" id="btnRoleAdmin" onclick="setRole('admin')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+              Admin / Operator
+            </button>
+            <button class="role-btn viewer" id="btnRoleViewer" onclick="setRole('viewer')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              Pimpinan / Viewer
+            </button>
+          </div>
+
+          <!-- Quick Actions: Import & Export -->
+          <div class="action-buttons" style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm admin-only" onclick="openImportModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              Impor Data
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openExportModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Ekspor Laporan
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- MAIN TAB CONTENTS -->
+      <main class="main-content">
+
+        <!-- ================= TAB 1: DASHBOARD RINGKASAN ================= -->
+        <section id="tab-dashboard" class="tab-pane">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem;">
+            <div>
+              <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a;">Ringkasan Realisasi DPA <span class="text-primary" id="dashYearTitle">2026</span></h2>
+              <p style="font-size: 0.85rem; color: #64748b;">Monitoring pergerakan realisasi pagu anggaran, sisa pagu, dan status serapan kegiatan secara real-time.</p>
+            </div>
+            <div style="text-align: right;">
+              <span class="badge badge-info" id="dashLastUpdate">Update: Hari Ini</span>
+            </div>
+          </div>
+
+          <!-- KPI Cards Grid -->
+          <div class="kpi-grid">
+            <div class="kpi-card pagu">
+              <div class="kpi-label">
+                <span>Total Pagu Anggaran</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+              </div>
+              <div class="kpi-value" id="kpiTotalPagu">Rp 0</div>
+              <div class="kpi-sub">
+                <span id="kpiCountSubKegiatan">0</span> Sub-Kegiatan terdaftar
+              </div>
+            </div>
+
+            <div class="kpi-card realisasi">
+              <div class="kpi-label">
+                <span>Total Realisasi (SP2D)</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div class="kpi-value" id="kpiTotalRealisasi" style="color: #059669;">Rp 0</div>
+              <div class="kpi-sub">
+                <span id="kpiCountTransaksi">0</span> Transaksi SP2D tercatat
+              </div>
+            </div>
+
+            <div class="kpi-card sisa">
+              <div class="kpi-label">
+                <span>Sisa Pagu Tersedia</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              </div>
+              <div class="kpi-value" id="kpiTotalSisa" style="color: #b45309;">Rp 0</div>
+              <div class="kpi-sub" id="kpiSisaPercent">0% dari pagu</div>
+            </div>
+
+            <div class="kpi-card persen">
+              <div class="kpi-label">
+                <span>Persentase Serapan</span>
+                <span id="kpiBadgeTarget" class="badge badge-success">Target Q4</span>
+              </div>
+              <div class="kpi-value" id="kpiPersentaseSerapan" style="color: #7c3aed;">0.00%</div>
+              <div class="progress-track">
+                <div class="progress-fill" id="kpiProgressBar" style="width: 0%;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visual Charts Row -->
+          <div class="charts-grid">
+            <div class="card" style="margin-bottom: 0;">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                  <span>Serapan Anggaran Berdasarkan Program</span>
+                </div>
+                <span style="font-size: 0.775rem; color: #64748b;">Perbandingan Realisasi vs Pagu</span>
+              </div>
+              <div id="programChartContainer" style="min-height: 250px; display: flex; flex-direction: column; gap: 0.85rem;"></div>
+            </div>
+
+            <div class="card" style="margin-bottom: 0;">
+              <div class="card-header">
+                <div class="card-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                  <span>Status & Jenis Belanja</span>
+                </div>
+              </div>
+
+              <!-- Status Kegiatan Counter -->
+              <div style="margin-bottom: 1.25rem;">
+                <div style="font-size: 0.775rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 0.5rem;">Distribusi Status Kegiatan</div>
+                <div style="display: flex; gap: 0.5rem; justify-content: space-between;">
+                  <div style="flex: 1; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.5rem; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #64748b; display: block;">Belum Mulai</span>
+                    <strong id="countStatusBelum" style="font-size: 1.1rem; color: #64748b;">0</strong>
+                  </div>
+                  <div style="flex: 1; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 0.5rem; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #b45309; display: block;">Berjalan</span>
+                    <strong id="countStatusBerjalan" style="font-size: 1.1rem; color: #b45309;">0</strong>
+                  </div>
+                  <div style="flex: 1; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; padding: 0.5rem; text-align: center;">
+                    <span style="font-size: 0.7rem; color: #047857; display: block;">Selesai</span>
+                    <strong id="countStatusSelesai" style="font-size: 1.1rem; color: #047857;">0</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Jenis Belanja Progress -->
+              <div>
+                <div style="font-size: 0.775rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 0.5rem;">Realisasi Berdasarkan Kelompok Belanja</div>
+                <div id="jenisBelanjaList" style="display: flex; flex-direction: column; gap: 0.65rem;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Top Realisasi Table -->
+          <div class="card" style="margin-top: 1.5rem;">
+            <div class="card-header">
+              <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Sub-Kegiatan dengan Pagu Terbesar & Realisasinya</span>
+              </div>
+              <button class="btn btn-secondary btn-sm" onclick="switchTab('master-dpa')">Lihat Semua Sub-Kegiatan &rarr;</button>
+            </div>
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Kode Sub-Kegiatan</th>
+                    <th>Sub-Kegiatan</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Total Pagu</th>
+                    <th style="text-align: right;">Total Realisasi</th>
+                    <th style="text-align: right;">Sisa Pagu</th>
+                    <th style="text-align: center;">% Serapan</th>
+                  </tr>
+                </thead>
+                <tbody id="topDpaTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 2: MASTER DPA (EXPANDABLE SUB-KEGIATAN) ================= -->
+        <section id="tab-master-dpa" class="tab-pane" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+                  <span>Master Data DPA Tahun <span id="masterYearTitle">2026</span></span>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 3px;">
+                  Tabel Sub-Kegiatan. <strong>Klik pada baris Sub-Kegiatan</strong> untuk menampilkan tabel rincian rekening belanja masing-masing.
+                </p>
+              </div>
+
+              <!-- Action Controls -->
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="searchMasterDPA" class="form-control" placeholder="Cari kode / sub-kegiatan..." style="width: 220px;" onkeyup="filterMasterTable()">
+                <select id="filterStatusDPA" class="form-control" style="width: 170px;" onchange="filterMasterTable()">
+                  <option value="">Semua Status</option>
+                  <option value="Belum Dilaksanakan">Belum Dilaksanakan</option>
+                  <option value="Sedang Berjalan">Sedang Berjalan</option>
+                  <option value="Selesai">Selesai</option>
+                </select>
+
+                <button class="btn btn-secondary btn-sm" onclick="toggleAllSubkegiatan()" id="btnToggleAllSubkeg" title="Buka/Tutup Seluruh Detail">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 13 12 18 17 13"/><polyline points="7 6 12 11 17 6"/></svg>
+                  <span>Buka Semua Rincian</span>
+                </button>
+
+                <button class="btn btn-secondary btn-sm admin-only" onclick="openAddSubkegiatanModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  + Tambah Sub-Kegiatan
+                </button>
+
+                <button class="btn btn-primary btn-sm admin-only" onclick="openAddDpaModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  + Tambah Rekening Belanja
+                </button>
+              </div>
+            </div>
+
+            <!-- TABEL 1: SUB-KEGIATAN UTAMA (EXPANDABLE) -->
+            <div class="table-responsive">
+              <table class="data-table" id="masterSubkegiatanTable">
+                <thead>
+                  <tr>
+                    <th style="width: 160px;">Kode Sub-Kegiatan</th>
+                    <th>Program / Kegiatan / Sub-Kegiatan</th>
+                    <th style="text-align: right; width: 140px;">PAGU</th>
+                    <th style="text-align: right; width: 140px;">REALISASI</th>
+                    <th style="text-align: right; width: 140px;">SISA</th>
+                    <th style="text-align: center; width: 110px;">Serapan (%)</th>
+                    <th style="text-align: center; width: 100px;" class="admin-only">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="masterTableBody">
+                  <!-- Dynamic Sub-Kegiatan Rows & Expandable Detail Tables -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 3: REALISASI (SP2D) ================= -->
+        <section id="tab-realisasi" class="tab-pane" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  <span>Pencatatan Transaksi Realisasi (SP2D / Bukti Pengeluaran)</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 3px;">Daftar pengeluaran anggaran yang terhubung langsung ke rekening belanja DPA</p>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <input type="text" id="searchRealisasi" class="form-control" placeholder="Cari nomor SP2D/uraian..." style="width: 220px;" onkeyup="filterRealisasiTable()">
+                <select id="filterTriwulanRealisasi" class="form-control" style="width: 150px;" onchange="filterRealisasiTable()">
+                  <option value="">Semua Periode</option>
+                  <option value="1">Triwulan I (Q1)</option>
+                  <option value="2">Triwulan II (Q2)</option>
+                  <option value="3">Triwulan III (Q3)</option>
+                  <option value="4">Triwulan IV (Q4)</option>
+                </select>
+                <button class="btn btn-primary btn-sm admin-only" onclick="openAddRealisasiModal()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  + Catat Transaksi SP2D
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Realisasi -->
+            <div class="table-responsive">
+              <table class="data-table" id="realisasiTable">
+                <thead>
+                  <tr>
+                    <th style="width: 100px;">Tanggal</th>
+                    <th style="width: 140px;">No. SP2D / Bukti</th>
+                    <th>Sub-Kegiatan & Rekening Belanja</th>
+                    <th>Uraian Belanja</th>
+                    <th>Penerima / Rekanan</th>
+                    <th style="text-align: right; width: 140px;">Nominal (Rp)</th>
+                    <th style="text-align: center; width: 90px;">Periode</th>
+                    <th style="text-align: center; width: 80px;" class="admin-only">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="realisasiTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 4: LAPORAN REKAPITULASI ================= -->
+        <section id="tab-laporan" class="tab-pane" style="display: none;">
+          <div class="card">
+            <div class="card-header no-print">
+              <div>
+                <div class="card-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  <span>Laporan Rekapitulasi Pelaksanaan Anggaran DPA</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 3px;">Format tabel fungsional murni untuk kebutuhan evaluasi internal dan pemeriksaan</p>
+              </div>
+
+              <!-- Laporan Filter Controls -->
+              <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                <select id="laporanPeriodeSelect" class="form-control" style="width: 180px;" onchange="renderLaporanTable()">
+                  <option value="all">Tahunan (Penuh)</option>
+                  <option value="q1">Triwulan I (Jan - Mar)</option>
+                  <option value="q2">Triwulan II (Apr - Jun)</option>
+                  <option value="q3">Triwulan III (Jul - Sep)</option>
+                  <option value="q4">Triwulan IV (Okt - Des)</option>
+                  <option value="m1">Bulan Januari</option>
+                  <option value="m2">Bulan Februari</option>
+                  <option value="m3">Bulan Maret</option>
+                  <option value="m4">Bulan April</option>
+                  <option value="m5">Bulan Mei</option>
+                  <option value="m6">Bulan Juni</option>
+                  <option value="m7">Bulan Juli</option>
+                  <option value="m8">Bulan Agustus</option>
+                  <option value="m9">Bulan September</option>
+                  <option value="m10">Bulan Oktober</option>
+                  <option value="m11">Bulan November</option>
+                  <option value="m12">Bulan Desember</option>
+                </select>
+
+                <button class="btn btn-secondary btn-sm" onclick="exportLaporanExcel()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                  Unduh Excel (.xlsx)
+                </button>
+
+                <button class="btn btn-secondary btn-sm" onclick="exportLaporanCSV()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Unduh CSV
+                </button>
+
+                <button class="btn btn-primary btn-sm" onclick="printLaporan()">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                  Cetak / PDF
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Laporan Rekapitulasi -->
+            <div class="table-responsive">
+              <table class="data-table" id="laporanTable">
+                <thead>
+                  <tr style="background: #f1f5f9;">
+                    <th style="width: 50px; text-align: center;">No</th>
+                    <th>Kode Rekening & Kegiatan</th>
+                    <th>Uraian Belanja DPA</th>
+                    <th style="text-align: right; width: 140px;">Pagu Anggaran (Rp)</th>
+                    <th style="text-align: right; width: 140px;">Realisasi Periode Ini (Rp)</th>
+                    <th style="text-align: right; width: 140px;">Total Realisasi (Rp)</th>
+                    <th style="text-align: right; width: 140px;">Sisa Pagu (Rp)</th>
+                    <th style="text-align: center; width: 90px;">% Capaian</th>
+                  </tr>
+                </thead>
+                <tbody id="laporanTableBody"></tbody>
+                <tfoot id="laporanTableFoot" style="font-weight: 800; background: #f8fafc; border-top: 2px solid #cbd5e1;"></tfoot>
+              </table>
+            </div>
+
+            <!-- Signatures area for official internal report print -->
+            <div class="print-only print-footer-signature">
+              <div style="text-align: center; width: 250px;">
+                <p>Mengetahui,</p>
+                <p style="font-weight: bold; margin-top: 4px;">Pengguna Anggaran / Pimpinan</p>
+                <div style="height: 60px;"></div>
+                <p style="text-decoration: underline; font-weight: bold;">(............................................)</p>
+                <p style="font-size: 8.5pt; color: #475569;">NIP. ........................................</p>
+              </div>
+
+              <div style="text-align: center; width: 250px;">
+                <p id="printSignCityDate">Kota, ......................... 2026</p>
+                <p style="font-weight: bold; margin-top: 4px;">Bendahara Pengeluaran / PPK</p>
+                <div style="height: 60px;"></div>
+                <p style="text-decoration: underline; font-weight: bold;">(............................................)</p>
+                <p style="font-size: 8.5pt; color: #475569;">NIP. ........................................</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 5: ARSIP MULTI-TAHUN ================= -->
+        <section id="tab-arsip-historis" class="tab-pane" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <span>Perbandingan Historis Multi-Tahun Anggaran</span>
+                </div>
+                <p style="font-size: 0.8rem; color: #64748b; margin-top: 3px;">Arsip performa serapan anggaran DPA lintas tahun fiskal untuk bahan audit dan perencanaan</p>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Tahun Anggaran</th>
+                    <th>Status Arsip</th>
+                    <th style="text-align: right;">Total Pagu (Rp)</th>
+                    <th style="text-align: right;">Total Realisasi (Rp)</th>
+                    <th style="text-align: right;">Sisa Pagu (Rp)</th>
+                    <th style="text-align: center;">% Serapan Akhir</th>
+                    <th style="text-align: center;">Aksi Cepat</th>
+                  </tr>
+                </thead>
+                <tbody id="multiYearTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODALS ================= -->
+
+  <!-- 1. MODAL TAMBAH / EDIT SUB-KEGIATAN -->
+  <div class="modal-backdrop" id="modalSubkegiatan">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;" id="modalSubkegTitle">Tambah Sub-Kegiatan Baru</h3>
+        <button onclick="closeModal('modalSubkegiatan')" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formSubkegiatan" onsubmit="saveSubkegiatanItem(event)">
+          <input type="hidden" id="editOriginalSubkegKey">
+
+          <div class="form-group">
+            <label class="form-label">Program</label>
+            <input type="text" id="subkegProgram" class="form-control" list="listProgramOptions" placeholder="Contoh: Program Penunjang Urusan Pemerintahan Daerah" required>
+            <datalist id="listProgramOptions">
+              <option value="Program Penunjang Urusan Pemerintahan Daerah">
+              <option value="Program Pengelolaan Informasi dan Komunikasi Publik">
+              <option value="Program Penyelenggaraan Pelayanan Publik Terpadu">
+              <option value="Program Pengembangan Infrastruktur Digital">
+            </datalist>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Kegiatan</label>
+            <input type="text" id="subkegKegiatan" class="form-control" placeholder="Contoh: Perencanaan, Penganggaran, dan Evaluasi Kinerja" required>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Kode Rekening Sub-Kegiatan</label>
+              <input type="text" id="subkegKode" class="form-control font-mono" placeholder="Contoh: 1.01.01.2.01.0001" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Pelaksanaan</label>
+              <select id="subkegStatus" class="form-control" required>
+                <option value="Belum Dilaksanakan">Belum Dilaksanakan</option>
+                <option value="Sedang Berjalan" selected>Sedang Berjalan</option>
+                <option value="Selesai">Selesai</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Sub-Kegiatan</label>
+            <input type="text" id="subkegNama" class="form-control" placeholder="Contoh: Penyusunan Dokumen Perencanaan Perangkat Daerah" required>
+          </div>
+
+          <div class="modal-footer" style="margin: 0 -1.5rem -1.5rem; padding: 1rem 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalSubkegiatan')">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan Sub-Kegiatan</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. MODAL TAMBAH / EDIT REKENING BELANJA -->
+  <div class="modal-backdrop" id="modalDpa">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;" id="modalDpaTitle">Tambah Rekening Belanja DPA</h3>
+        <button onclick="closeModal('modalDpa')" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formDpa" onsubmit="saveDpaItem(event)">
+          <input type="hidden" id="dpaId">
+
+          <div class="form-group">
+            <label class="form-label">Sub-Kegiatan Induk</label>
+            <select id="dpaSubkegTarget" class="form-control" required>
+              <!-- Filled dynamically with existing Sub-Kegiatans -->
+            </select>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Kode Rekening Belanja</label>
+              <input type="text" id="dpaKodeRekening" class="form-control font-mono" placeholder="Contoh: 5.1.02.01.01.0024" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Kelompok Belanja</label>
+              <select id="dpaKelompok" class="form-control" required>
+                <option value="Belanja Operasi">Belanja Operasi</option>
+                <option value="Belanja Modal">Belanja Modal</option>
+                <option value="Belanja Tak Terduga">Belanja Tak Terduga</option>
+                <option value="Belanja Transfer">Belanja Transfer</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Nama Belanja / Sub Belanja (Uraian)</label>
+            <input type="text" id="dpaUraian" class="form-control" placeholder="Contoh: Belanja Alat Tulis Kantor dan Bahan Cetak" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pagu Belanja (Rp)</label>
+            <input type="number" id="dpaPagu" class="form-control font-mono" min="1" step="1000" placeholder="Contoh: 85000000" required>
+            <div id="paguTerbilang" style="font-size: 0.75rem; color: #059669; margin-top: 3px;"></div>
+          </div>
+
+          <div class="modal-footer" style="margin: 0 -1.5rem -1.5rem; padding: 1rem 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalDpa')">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan Rekening Belanja</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. MODAL TAMBAH REALISASI (SP2D) -->
+  <div class="modal-backdrop" id="modalRealisasi">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 style="font-size: 1.1rem; font-weight: 700;">Catat Transaksi Realisasi (SP2D)</h3>
+        <button onclick="closeModal('modalRealisasi')" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="formRealisasi" onsubmit="saveRealisasiItem(event)">
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Tanggal Transaksi / SP2D</label>
+              <input type="date" id="realisasiTanggal" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor SP2D / Bukti Pengeluaran</label>
+              <input type="text" id="realisasiNomor" class="form-control font-mono" placeholder="SP2D/2026/001/LS" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pilih Rekening Belanja DPA Tujuan</label>
+            <select id="realisasiDpaId" class="form-control" required onchange="updateRealisasiHelper()"></select>
+            <div id="realisasiSisaHelper" style="font-size: 0.775rem; color: #475569; margin-top: 4px; background: #f8fafc; padding: 4px 8px; border-radius: 4px; border: 1px solid #e2e8f0;">
+              Sisa Pagu Tersedia: <strong id="realisasiHelperSisaPagu">Rp 0</strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Uraian Pembayaran</label>
+            <textarea id="realisasiUraian" class="form-control" rows="2" placeholder="Contoh: Pembayaran pengadaan kertas HVS A4 & F4 triwulan I" required></textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Penerima / Rekanan / Pihak Ketiga</label>
+              <input type="text" id="realisasiPenerima" class="form-control" placeholder="CV. Mitra Usaha / Bendahara" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nominal Realisasi (Rp)</label>
+              <input type="number" id="realisasiNominal" class="form-control font-mono" min="1" step="1000" placeholder="Contoh: 12500000" required>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="margin: 0 -1.5rem -1.5rem; padding: 1rem 1.5rem;">
+            <button type="button" class="btn btn-secondary" onclick="closeModal('modalRealisasi')">Batal</button>
+            <button type="submit" class="btn btn-primary">Simpan Transaksi Realisasi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. MODAL IMPORT DATA (EXCEL / CSV) -->
+  <div class="modal-backdrop" id="modalImport">
+    <div class="modal-dialog" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 700;">Impor Data Massal (Bulk Upload)</h3>
+          <p style="font-size: 0.8rem; color: #64748b;">Unggah file Excel (.xlsx) atau CSV untuk input data master DPA atau data realisasi sekaligus</p>
+        </div>
+        <button onclick="closeModal('modalImport')" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="margin-bottom: 1rem;">
+          <label class="form-label">Tipe Data yang Akan Diimpor:</label>
+          <div style="display: flex; gap: 1rem;">
+            <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; cursor: pointer;">
+              <input type="radio" name="importType" value="master" checked onchange="toggleImportTemplate()">
+              Master Rekening DPA
+            </label>
+            <label style="display: flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; cursor: pointer;">
+              <input type="radio" name="importType" value="realisasi" onchange="toggleImportTemplate()">
+              Transaksi Realisasi (SP2D)
+            </label>
+          </div>
+        </div>
+
+        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 1rem; display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: #1e40af;">Gunakan Format Template Resmi</div>
+            <div style="font-size: 0.75rem; color: #3b82f6;">Pastikan header kolom sesuai agar data terpetakan dengan akurat.</div>
+          </div>
+          <button class="btn btn-outline-primary btn-sm" onclick="downloadCurrentImportTemplate()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Unduh Template CSV
+          </button>
+        </div>
+
+        <div class="drop-zone" id="dropZone" onclick="document.getElementById('importFileInput').click()">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="1.5" style="margin: 0 auto 0.75rem;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div style="font-weight: 700; font-size: 0.95rem; color: #0f172a; margin-bottom: 0.25rem;">Klik untuk pilih file atau seret file ke sini</div>
+          <div style="font-size: 0.8rem; color: #64748b;">Mendukung format .CSV atau .TXT berpemisah koma/titik-koma</div>
+          <input type="file" id="importFileInput" accept=".csv, .txt, .xlsx, .xls" style="display: none;" onchange="handleFileSelect(event)">
+        </div>
+
+        <div id="importPreviewContainer" style="display: none; margin-top: 1rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+            <span style="font-size: 0.8rem; font-weight: 700; color: #0f172a;">Pratinjau Data (<span id="importRowCount">0</span> baris terdeteksi):</span>
+            <span id="importValidationBadge" class="badge badge-success">Format Valid</span>
+          </div>
+          <div class="table-responsive" style="max-height: 200px; overflow-y: auto;">
+            <table class="data-table" id="importPreviewTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="margin: 1.5rem -1.5rem -1.5rem; padding: 1rem 1.5rem;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('modalImport')">Tutup</button>
+          <button type="button" class="btn btn-primary" id="btnExecuteImport" disabled onclick="executeBulkImport()">Proses & Simpan Data</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. MODAL EXPORT DATA -->
+  <div class="modal-backdrop" id="modalExport">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 700;">Ekspor Laporan & Data DPA</h3>
+          <p style="font-size: 0.8rem; color: #64748b;">Unduh data sesuai periode dan format yang dibutuhkan</p>
+        </div>
+        <button onclick="closeModal('modalExport')" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Pilih Periode Laporan:</label>
+          <select id="exportPeriodOption" class="form-control">
+            <option value="all">Tahunan (Lengkap Jan - Des)</option>
+            <option value="q1">Triwulan I (Q1)</option>
+            <option value="q2">Triwulan II (Q2)</option>
+            <option value="q3">Triwulan III (Q3)</option>
+            <option value="q4">Triwulan IV (Q4)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pilih Data yang Diekspor:</label>
+          <select id="exportDataType" class="form-control">
+            <option value="rekap">Laporan Rekapitulasi Realisasi DPA</option>
+            <option value="master">Seluruh Data Master Rekening DPA</option>
+            <option value="realisasi">Buku Catatan Transaksi SP2D</option>
+          </select>
+        </div>
+
+        <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; color: #334155;">Pilih Format Berkas:</div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem;">
+          <button class="btn btn-secondary" style="flex-direction: column; padding: 1rem; border-color: #cbd5e1;" onclick="processExport('excel')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#047857" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h8M8 17h8M8 9h2"/></svg>
+            <span style="font-weight: 700; margin-top: 4px;">Excel (.xlsx/.xls)</span>
+            <span style="font-size: 0.7rem; color: #64748b;">Tabel fungsional</span>
+          </button>
+          
+          <button class="btn btn-secondary" style="flex-direction: column; padding: 1rem; border-color: #cbd5e1;" onclick="processExport('csv')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span style="font-weight: 700; margin-top: 4px;">CSV File</span>
+            <span style="font-size: 0.7rem; color: #64748b;">Mudah diimpor</span>
+          </button>
+
+          <button class="btn btn-secondary" style="flex-direction: column; padding: 1rem; border-color: #cbd5e1;" onclick="processExport('pdf')">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+            <span style="font-weight: 700; margin-top: 4px;">Cetak / PDF</span>
+            <span style="font-size: 0.7rem; color: #64748b;">Ramah cetak</span>
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalExport')">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. MODAL SUPABASE CONFIG -->
+  <div class="modal-backdrop" id="modalSupabase">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <h3 style="font-size: 1.1rem; font-weight: 700;">Integrasi Cloud Database (Supabase)</h3>
+          <p style="font-size: 0.8rem; color: #64748b;">Hubungkan aplikasi dengan database PostgreSQL Supabase</p>
+        </div>
+        <button onclick="closeModal('modalSupabase')" style="background: none; border: none; font-size: 1.3rem; cursor: pointer; color: #64748b;">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0.85rem; margin-bottom: 1rem; font-size: 0.8rem; color: #475569;">
+          Saat ini aplikasi beroperasi secara offline & standalone menggunakan <strong>LocalStorage Browser</strong>. Seluruh skema database PostgreSQL siap pakai disediakan di file <code>supabase_schema.sql</code>.
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Project URL</label>
+          <input type="text" id="supabaseUrlInput" class="form-control font-mono" placeholder="https://xyzcompany.supabase.co">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Supabase Anon Key (Public API Key)</label>
+          <input type="password" id="supabaseKeyInput" class="form-control font-mono" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+          <button class="btn btn-secondary btn-sm" onclick="testSupabaseConnection()">Uji Koneksi</button>
+          <button class="btn btn-danger btn-sm" onclick="resetToSampleData()">Reset Sample Data</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeModal('modalSupabase')">Batal</button>
+        <button type="submit" class="btn btn-primary" onclick="saveSupabaseConfig()">Simpan Konfigurasi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- JAVASCRIPT APPLICATION CORE -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    let currentRole = 'admin'; // 'admin' | 'viewer'
+    let currentFiscalYear = '2026';
+    let expandedSubKegiatans = {
+      // Default: keep the first subkegiatan open for instant visual demo
+      "1.01.01.2.01.0001": true
+    };
+
+    // Realistic Indonesian Government DPA Structure
+    const DEFAULT_DATA = {
+      "2026": {
+        master: [
+          // Sub-Kegiatan 1: Penyusunan Dokumen Perencanaan Perangkat Daerah
+          {
+            id: "dpa-2026-001",
+            kodeSubKegiatan: "1.01.01.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Perencanaan, Penganggaran, dan Evaluasi Kinerja Perangkat Daerah",
+            subKegiatan: "Penyusunan Dokumen Perencanaan Perangkat Daerah",
+            kodeRekening: "5.1.02.01.01.0024",
+            uraian: "Belanja Alat Tulis Kantor dan Bahan Cetak Dokumen RKA/DPA",
+            kelompok: "Belanja Operasi",
+            pagu: 85000000,
+            status: "Sedang Berjalan"
+          },
+          {
+            id: "dpa-2026-001b",
+            kodeSubKegiatan: "1.01.01.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Perencanaan, Penganggaran, dan Evaluasi Kinerja Perangkat Daerah",
+            subKegiatan: "Penyusunan Dokumen Perencanaan Perangkat Daerah",
+            kodeRekening: "5.1.02.01.01.0026",
+            uraian: "Belanja Jasa Penggandaan dan Penjilidan Buku Perencanaan",
+            kelompok: "Belanja Operasi",
+            pagu: 25000000,
+            status: "Sedang Berjalan"
+          },
+
+          // Sub-Kegiatan 2: Penyediaan Gaji dan Tunjangan ASN
+          {
+            id: "dpa-2026-002",
+            kodeSubKegiatan: "1.01.02.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Administrasi Keuangan Perangkat Daerah",
+            subKegiatan: "Penyediaan Gaji dan Tunjangan ASN",
+            kodeRekening: "5.1.01.01.01.0001",
+            uraian: "Belanja Gaji Pokok ASN",
+            kelompok: "Belanja Operasi",
+            pagu: 1450000000,
+            status: "Sedang Berjalan"
+          },
+          {
+            id: "dpa-2026-002b",
+            kodeSubKegiatan: "1.01.02.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Administrasi Keuangan Perangkat Daerah",
+            subKegiatan: "Penyediaan Gaji dan Tunjangan ASN",
+            kodeRekening: "5.1.01.01.02.0001",
+            uraian: "Belanja Tunjangan Keluarga dan Fungsional ASN",
+            kelompok: "Belanja Operasi",
+            pagu: 320000000,
+            status: "Sedang Berjalan"
+          },
+
+          // Sub-Kegiatan 3: Penyelenggaraan Monitoring Opini dan Media Publik
+          {
+            id: "dpa-2026-003",
+            kodeSubKegiatan: "2.16.01.2.02.0001",
+            program: "Program Pengelolaan Informasi dan Komunikasi Publik",
+            kegiatan: "Pengelolaan Informasi dan Dokumentasi",
+            subKegiatan: "Penyelenggaraan Monitoring Opini dan Media Publik",
+            kodeRekening: "5.1.02.02.01.0015",
+            uraian: "Belanja Jasa Tenaga Ahli Analis Data Media",
+            kelompok: "Belanja Operasi",
+            pagu: 120000000,
+            status: "Sedang Berjalan"
+          },
+          {
+            id: "dpa-2026-003b",
+            kodeSubKegiatan: "2.16.01.2.02.0001",
+            program: "Program Pengelolaan Informasi dan Komunikasi Publik",
+            kegiatan: "Pengelolaan Informasi dan Dokumentasi",
+            subKegiatan: "Penyelenggaraan Monitoring Opini dan Media Publik",
+            kodeRekening: "5.1.02.02.01.0030",
+            uraian: "Belanja Langganan Media Informasi & Publikasi Berita",
+            kelompok: "Belanja Operasi",
+            pagu: 45000000,
+            status: "Sedang Berjalan"
+          },
+
+          // Sub-Kegiatan 4: Pengadaan Perangkat Keras Jaringan & Server
+          {
+            id: "dpa-2026-004",
+            kodeSubKegiatan: "2.16.02.2.01.0001",
+            program: "Program Pengembangan Infrastruktur Digital",
+            kegiatan: "Pengelolaan Sarana dan Prasarana Komputasi",
+            subKegiatan: "Pengadaan Perangkat Keras Jaringan & Server",
+            kodeRekening: "5.2.02.05.01.0005",
+            uraian: "Belanja Modal Komputer Server dan Storage",
+            kelompok: "Belanja Modal",
+            pagu: 480000000,
+            status: "Belum Dilaksanakan"
+          },
+          {
+            id: "dpa-2026-004b",
+            kodeSubKegiatan: "2.16.02.2.01.0001",
+            program: "Program Pengembangan Infrastruktur Digital",
+            kegiatan: "Pengelolaan Sarana dan Prasarana Komputasi",
+            subKegiatan: "Pengadaan Perangkat Keras Jaringan & Server",
+            kodeRekening: "5.2.02.05.01.0012",
+            uraian: "Belanja Modal UPS Rackmount 6KVA Online",
+            kelompok: "Belanja Modal",
+            pagu: 65000000,
+            status: "Belum Dilaksanakan"
+          },
+
+          // Sub-Kegiatan 5: Pemeliharaan dan Update Aplikasi Perizinan Online
+          {
+            id: "dpa-2026-005",
+            kodeSubKegiatan: "1.01.03.2.01.0004",
+            program: "Program Penyelenggaraan Pelayanan Publik Terpadu",
+            kegiatan: "Optimalisasi Sistem Informasi Layanan Terpadu",
+            subKegiatan: "Pemeliharaan dan Update Aplikasi Perizinan Online",
+            kodeRekening: "5.1.02.03.02.0001",
+            uraian: "Belanja Jasa Pemeliharaan Lisensi Perangkat Lunak",
+            kelompok: "Belanja Operasi",
+            pagu: 95000000,
+            status: "Selesai"
+          },
+
+          // Sub-Kegiatan 6: Pemasangan Jalur FO Antar-Gedung SKPD
+          {
+            id: "dpa-2026-006",
+            kodeSubKegiatan: "2.16.02.2.01.0003",
+            program: "Program Pengembangan Infrastruktur Digital",
+            kegiatan: "Pengembangan Infrastruktur Jaringan Fiber Optik",
+            subKegiatan: "Pemasangan Jalur FO Antar-Gedung SKPD",
+            kodeRekening: "5.2.03.01.01.0002",
+            uraian: "Belanja Modal Jaringan Kabel Komunikasi Data",
+            kelompok: "Belanja Modal",
+            pagu: 320000000,
+            status: "Sedang Berjalan"
+          }
+        ],
+        realisasi: [
+          {
+            id: "rea-2026-001",
+            dpaId: "dpa-2026-001",
+            tanggal: "2026-02-15",
+            nomor: "SP2D/2026/0014/UP",
+            uraian: "Pengadaan ATK Kegiatan Rapat Perencanaan Awal Tahun",
+            penerima: "Toko ATK Berkah Jaya",
+            nominal: 18500000,
+            triwulan: 1
+          },
+          {
+            id: "rea-2026-001b",
+            dpaId: "dpa-2026-001b",
+            tanggal: "2026-03-20",
+            nomor: "SP2D/2026/0095/GU",
+            uraian: "Penggandaan Dokumen Rancangan RKA 50 Eksemplar",
+            penerima: "Percetakan Amanah",
+            nominal: 8500000,
+            triwulan: 1
+          },
+          {
+            id: "rea-2026-002",
+            dpaId: "dpa-2026-002",
+            tanggal: "2026-03-01",
+            nomor: "SP2D/2026/0088/LS",
+            uraian: "Pembayaran Gaji Pokok ASN Bulan Januari-Februari 2026",
+            penerima: "Bendahara Gaji SKPD",
+            nominal: 480000000,
+            triwulan: 1
+          },
+          {
+            id: "rea-2026-003",
+            dpaId: "dpa-2026-003",
+            tanggal: "2026-04-10",
+            nomor: "SP2D/2026/0120/LS",
+            uraian: "Honorarium Jasa Analis Media Triwulan I",
+            penerima: "Tim Konsultan Data Media",
+            nominal: 30000000,
+            triwulan: 2
+          },
+          {
+            id: "rea-2026-004",
+            dpaId: "dpa-2026-005",
+            tanggal: "2026-05-20",
+            nomor: "SP2D/2026/0189/LS",
+            uraian: "Perpanjangan Lisensi SSL dan Server Aplikasi Publik",
+            penerima: "PT. Solusi Data Nusantara",
+            nominal: 92000000,
+            triwulan: 2
+          },
+          {
+            id: "rea-2026-005",
+            dpaId: "dpa-2026-006",
+            tanggal: "2026-06-18",
+            nomor: "SP2D/2026/0245/LS",
+            uraian: "Uang Muka Termijn I Penarikan Kabel FO Koridor Barat",
+            penerima: "PT. Karya Jaringan Mandiri",
+            nominal: 96000000,
+            triwulan: 2
+          },
+          {
+            id: "rea-2026-006",
+            dpaId: "dpa-2026-001",
+            tanggal: "2026-07-22",
+            nomor: "SP2D/2026/0312/GU",
+            uraian: "Pencetakan Buku Rancangan Kerja Perangkat Daerah Final",
+            penerima: "CV. Graha Grafika",
+            nominal: 24000000,
+            triwulan: 3
+          }
+        ]
+      },
+      "2025": {
+        master: [
+          {
+            id: "dpa-2025-001",
+            kodeSubKegiatan: "1.01.01.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Penyusunan Anggaran dan Renja",
+            subKegiatan: "Rapat Koordinasi Anggaran DPA",
+            kodeRekening: "5.1.02.01.01.0024",
+            uraian: "Belanja ATK dan Penggandaan",
+            kelompok: "Belanja Operasi",
+            pagu: 75000000,
+            status: "Selesai"
+          },
+          {
+            id: "dpa-2025-002",
+            kodeSubKegiatan: "1.01.02.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Administrasi Keuangan Perangkat Daerah",
+            subKegiatan: "Gaji dan Tunjangan",
+            kodeRekening: "5.1.01.01.01.0001",
+            uraian: "Belanja Gaji ASN",
+            kelompok: "Belanja Operasi",
+            pagu: 1350000000,
+            status: "Selesai"
+          }
+        ],
+        realisasi: [
+          {
+            id: "rea-2025-001",
+            dpaId: "dpa-2025-001",
+            tanggal: "2025-04-12",
+            nomor: "SP2D/2025/0091/LS",
+            uraian: "Pengadaan ATK Rapat Renja",
+            penerima: "CV. Abadi Jaya",
+            nominal: 72000000,
+            triwulan: 2
+          },
+          {
+            id: "rea-2025-002",
+            dpaId: "dpa-2025-002",
+            tanggal: "2025-12-15",
+            nomor: "SP2D/2025/0889/LS",
+            uraian: "Pembayaran Gaji ASN Full Year 2025",
+            penerima: "Bendahara Pengeluaran",
+            nominal: 1320000000,
+            triwulan: 4
+          }
+        ]
+      },
+      "2024": {
+        master: [
+          {
+            id: "dpa-2024-001",
+            kodeSubKegiatan: "1.01.01.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Operasional Kantor",
+            subKegiatan: "Pengadaan Perlengkapan Kantor",
+            kodeRekening: "5.1.02.01.01.0024",
+            uraian: "Belanja Perlengkapan Kantor",
+            kelompok: "Belanja Operasi",
+            pagu: 60000000,
+            status: "Selesai"
+          }
+        ],
+        realisasi: [
+          {
+            id: "rea-2024-001",
+            dpaId: "dpa-2024-001",
+            tanggal: "2024-08-10",
+            nomor: "SP2D/2024/0410/LS",
+            uraian: "Pengadaan Perlengkapan Kantor TA 2024",
+            penerima: "CV. Prima Office",
+            nominal: 58500000,
+            triwulan: 3
+          }
+        ]
+      },
+      "2027": {
+        master: [
+          {
+            id: "dpa-2027-001",
+            kodeSubKegiatan: "1.01.01.2.01.0001",
+            program: "Program Penunjang Urusan Pemerintahan Daerah",
+            kegiatan: "Penyusunan RKA & DPA 2027",
+            subKegiatan: "Konsultasi dan Musrenbang",
+            kodeRekening: "5.1.02.01.01.0024",
+            uraian: "Belanja Cetak Dokumen RKA",
+            kelompok: "Belanja Operasi",
+            pagu: 90000000,
+            status: "Belum Dilaksanakan"
+          }
+        ],
+        realisasi: []
+      }
+    };
+
+    function getStoredData() {
+      const stored = localStorage.getItem('sim_dpa_database_v2');
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          console.error("Failed to parse localStorage data", e);
+        }
+      }
+      localStorage.setItem('sim_dpa_database_v2', JSON.stringify(DEFAULT_DATA));
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+
+    function saveStoredData(data) {
+      localStorage.setItem('sim_dpa_database_v2', JSON.stringify(data));
+      refreshAllViews();
+    }
+
+    let appData = getStoredData();
+
+    // Helper: Format Rupiah
+    function formatRupiah(amount) {
+      if (isNaN(amount) || amount === null || amount === undefined) return 'Rp 0';
+      return 'Rp ' + Number(amount).toLocaleString('id-ID');
+    }
+
+    function getDpaRealisasiSum(dpaId, dataList = null) {
+      const yearData = appData[currentFiscalYear];
+      if (!yearData) return 0;
+      const list = dataList || yearData.realisasi;
+      return list
+        .filter(r => r.dpaId === dpaId)
+        .reduce((sum, r) => sum + Number(r.nominal || 0), 0);
+    }
+
+    // Grouping helper: Organizes master list by Sub-Kegiatan
+    function groupMasterBySubkegiatan(masterList) {
+      const groups = {};
+      masterList.forEach(item => {
+        const subkegKey = (item.kodeSubKegiatan || 'SK-DEFAULT') + '__' + (item.subKegiatan || 'Sub-Kegiatan');
+        if (!groups[subkegKey]) {
+          groups[subkegKey] = {
+            key: subkegKey,
+            kodeSubKegiatan: item.kodeSubKegiatan || '1.01.01.2.01.0001',
+            program: item.program || 'Program Daerah',
+            kegiatan: item.kegiatan || 'Kegiatan Daerah',
+            subKegiatan: item.subKegiatan || 'Sub-Kegiatan',
+            status: item.status || 'Sedang Berjalan',
+            rekeningList: []
+          };
+        }
+        groups[subkegKey].rekeningList.push(item);
+      });
+
+      return Object.values(groups).map(grp => {
+        const totalPagu = grp.rekeningList.reduce((s, r) => s + Number(r.pagu || 0), 0);
+        const totalRealisasi = grp.rekeningList.reduce((s, r) => s + getDpaRealisasiSum(r.id), 0);
+        const sisaPagu = totalPagu - totalRealisasi;
+        const persenSerapan = totalPagu > 0 ? (totalRealisasi / totalPagu) * 100 : 0;
+
+        return {
+          ...grp,
+          totalPagu,
+          totalRealisasi,
+          sisaPagu,
+          persenSerapan
+        };
+      });
+    }
+
+    // --- TAB SWITCHING ---
+    function initNavigation() {
+      document.querySelectorAll('.sidebar-menu a.nav-item').forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          const targetTab = link.getAttribute('data-tab');
+          if (targetTab) switchTab(targetTab);
+        });
+      });
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.sidebar-menu a.nav-item').forEach(el => el.classList.remove('active'));
+
+      const targetPane = document.getElementById('tab-' + tabId);
+      if (targetPane) targetPane.style.display = 'block';
+
+      const activeLink = document.querySelector(`.sidebar-menu a[data-tab="${tabId}"]`);
+      if (activeLink) activeLink.classList.add('active');
+
+      if (tabId === 'dashboard') renderDashboard();
+      if (tabId === 'master-dpa') renderMasterTable();
+      if (tabId === 'realisasi') renderRealisasiTable();
+      if (tabId === 'laporan') renderLaporanTable();
+      if (tabId === 'arsip-historis') renderMultiYearArchive();
+    }
+
+    // --- ROLE MANAGEMENT ---
+    function setRole(role) {
+      currentRole = role;
+      const btnAdmin = document.getElementById('btnRoleAdmin');
+      const btnViewer = document.getElementById('btnRoleViewer');
+      const indicator = document.getElementById('roleIndicator');
+      const text = document.getElementById('currentRoleText');
+
+      if (role === 'admin') {
+        btnAdmin.className = 'role-btn active admin';
+        btnViewer.className = 'role-btn viewer';
+        indicator.className = 'role-badge-box role-badge-admin';
+        text.innerText = 'Admin / Operator (Full Access)';
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+        showToast('Beralih ke mode Admin: Akses input & edit data dibuka');
+      } else {
+        btnAdmin.className = 'role-btn admin';
+        btnViewer.className = 'role-btn active viewer';
+        indicator.className = 'role-badge-box role-badge-viewer';
+        text.innerText = 'Pimpinan / Viewer (Read-Only)';
+        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        showToast('Beralih ke mode Pimpinan: Akses dibatasi untuk monitoring dan laporan saja');
+      }
+
+      refreshAllViews();
+    }
+
+    // --- MULTI-YEAR MANAGEMENT ---
+    function changeFiscalYear(year) {
+      currentFiscalYear = year;
+      if (!appData[currentFiscalYear]) {
+        appData[currentFiscalYear] = { master: [], realisasi: [] };
+        saveStoredData(appData);
+      }
+      showToast(`Tahun Anggaran aktif dialihkan ke TA ${year}`);
+      refreshAllViews();
+    }
+
+    function refreshAllViews() {
+      const elementsToUpdate = ['dashYearTitle', 'masterYearTitle'];
+      elementsToUpdate.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = currentFiscalYear;
+      });
+
+      renderDashboard();
+      renderMasterTable();
+      renderRealisasiTable();
+      renderLaporanTable();
+      renderMultiYearArchive();
+      populateDpaSelectOptions();
+    }
+
+    // --- RENDER DASHBOARD ---
+    function renderDashboard() {
+      const yearData = appData[currentFiscalYear] || { master: [], realisasi: [] };
+      const masterList = yearData.master || [];
+      const realisasiList = yearData.realisasi || [];
+
+      const totalPagu = masterList.reduce((sum, item) => sum + Number(item.pagu || 0), 0);
+      const totalRealisasi = realisasiList.reduce((sum, item) => sum + Number(item.nominal || 0), 0);
+      const sisaPagu = totalPagu - totalRealisasi;
+      const persenSerapan = totalPagu > 0 ? (totalRealisasi / totalPagu) * 100 : 0;
+
+      document.getElementById('kpiTotalPagu').innerText = formatRupiah(totalPagu);
+      document.getElementById('kpiTotalRealisasi').innerText = formatRupiah(totalRealisasi);
+      document.getElementById('kpiTotalSisa').innerText = formatRupiah(sisaPagu);
+      document.getElementById('kpiPersentaseSerapan').innerText = persenSerapan.toFixed(2) + '%';
+      
+      const sisaPercent = totalPagu > 0 ? ((sisaPagu / totalPagu) * 100).toFixed(1) : 0;
+      document.getElementById('kpiSisaPercent').innerText = `${sisaPercent}% dari pagu total`;
+
+      const subkegGroups = groupMasterBySubkegiatan(masterList);
+      document.getElementById('kpiCountSubKegiatan').innerText = subkegGroups.length;
+      document.getElementById('kpiCountTransaksi').innerText = realisasiList.length;
+
+      const pBar = document.getElementById('kpiProgressBar');
+      pBar.style.width = Math.min(persenSerapan, 100) + '%';
+      if (persenSerapan > 90) {
+        pBar.className = 'progress-fill danger';
+      } else if (persenSerapan > 70) {
+        pBar.className = 'progress-fill warning';
+      } else {
+        pBar.className = 'progress-fill';
+      }
+
+      // Status Counts based on Sub-Kegiatans
+      const countBelum = subkegGroups.filter(m => m.status === 'Belum Dilaksanakan').length;
+      const countBerjalan = subkegGroups.filter(m => m.status === 'Sedang Berjalan').length;
+      const countSelesai = subkegGroups.filter(m => m.status === 'Selesai').length;
+
+      document.getElementById('countStatusBelum').innerText = countBelum;
+      document.getElementById('countStatusBerjalan').innerText = countBerjalan;
+      document.getElementById('countStatusSelesai').innerText = countSelesai;
+
+      // Program Breakdown
+      const programMap = {};
+      masterList.forEach(item => {
+        if (!programMap[item.program]) {
+          programMap[item.program] = { pagu: 0, realisasi: 0 };
+        }
+        programMap[item.program].pagu += Number(item.pagu || 0);
+        programMap[item.program].realisasi += getDpaRealisasiSum(item.id);
+      });
+
+      const progContainer = document.getElementById('programChartContainer');
+      progContainer.innerHTML = '';
+      const programs = Object.keys(programMap);
+
+      if (programs.length === 0) {
+        progContainer.innerHTML = '<div style="text-align: center; color: #94a3b8; padding: 2rem;">Belum ada data DPA pada tahun ini</div>';
+      } else {
+        programs.forEach(progName => {
+          const p = programMap[progName];
+          const pct = p.pagu > 0 ? ((p.realisasi / p.pagu) * 100) : 0;
+          const div = document.createElement('div');
+          div.style.background = '#f8fafc';
+          div.style.padding = '0.75rem';
+          div.style.borderRadius = '8px';
+          div.style.border = '1px solid #e2e8f0';
+
+          div.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px;">
+              <strong style="font-size: 0.825rem; color: #1e293b;">${progName}</strong>
+              <span style="font-size: 0.775rem; font-weight: 700; color: #047857;">${pct.toFixed(1)}%</span>
+            </div>
+            <div class="progress-track" style="margin-bottom: 6px;">
+              <div class="progress-fill" style="width: ${Math.min(pct, 100)}%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.725rem; color: #64748b;">
+              <span>Realisasi: ${formatRupiah(p.realisasi)}</span>
+              <span>Pagu: ${formatRupiah(p.pagu)}</span>
+            </div>
+          `;
+          progContainer.appendChild(div);
+        });
+      }
+
+      // Kelompok Belanja
+      const kelompokMap = {
+        'Belanja Operasi': { pagu: 0, realisasi: 0 },
+        'Belanja Modal': { pagu: 0, realisasi: 0 },
+        'Belanja Tak Terduga': { pagu: 0, realisasi: 0 },
+        'Belanja Transfer': { pagu: 0, realisasi: 0 }
+      };
+
+      masterList.forEach(m => {
+        const k = m.kelompok || 'Belanja Operasi';
+        if (kelompokMap[k]) {
+          kelompokMap[k].pagu += Number(m.pagu || 0);
+          kelompokMap[k].realisasi += getDpaRealisasiSum(m.id);
+        }
+      });
+
+      const jenisContainer = document.getElementById('jenisBelanjaList');
+      jenisContainer.innerHTML = '';
+      Object.keys(kelompokMap).forEach(kName => {
+        const item = kelompokMap[kName];
+        if (item.pagu > 0) {
+          const pct = ((item.realisasi / item.pagu) * 100).toFixed(1);
+          const row = document.createElement('div');
+          row.style.fontSize = '0.775rem';
+          row.innerHTML = `
+            <div style="display: flex; justify-content: space-between; margin-bottom: 2px;">
+              <span style="color: #334155; font-weight: 600;">${kName}</span>
+              <span style="font-weight: 700; color: #0f172a;">${formatRupiah(item.realisasi)} <span style="color: #64748b; font-weight: normal;">(${pct}%)</span></span>
+            </div>
+            <div class="progress-track" style="height: 6px;">
+              <div class="progress-fill" style="width: ${Math.min(pct, 100)}%;"></div>
+            </div>
+          `;
+          jenisContainer.appendChild(row);
+        }
+      });
+
+      // Quick Top Sub-Kegiatan Table
+      const sortedSubkeg = [...subkegGroups].sort((a, b) => b.totalPagu - a.totalPagu).slice(0, 5);
+      const topTbody = document.getElementById('topDpaTableBody');
+      topTbody.innerHTML = '';
+
+      if (sortedSubkeg.length === 0) {
+        topTbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 1.5rem;">Tidak ada data Sub-Kegiatan</td></tr>';
+      } else {
+        sortedSubkeg.forEach(grp => {
+          let badgeClass = 'badge-info';
+          if (grp.status === 'Selesai') badgeClass = 'badge-success';
+          if (grp.status === 'Belum Dilaksanakan') badgeClass = 'badge-slate';
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="font-mono" style="font-weight: 700; color: #0369a1;">${grp.kodeSubKegiatan}</td>
+            <td>
+              <div style="font-weight: 700; color: #047857;">${grp.subKegiatan}</div>
+              <div style="font-size: 0.725rem; color: #64748b;">${grp.program}</div>
+            </td>
+            <td><span class="badge ${badgeClass}">${grp.status}</span></td>
+            <td style="text-align: right;" class="font-mono">${formatRupiah(grp.totalPagu)}</td>
+            <td style="text-align: right; color: #059669; font-weight: 600;" class="font-mono">${formatRupiah(grp.totalRealisasi)}</td>
+            <td style="text-align: right; color: #b45309;" class="font-mono">${formatRupiah(grp.sisaPagu)}</td>
+            <td style="text-align: center; font-weight: 700;">${grp.persenSerapan.toFixed(1)}%</td>
+          `;
+          topTbody.appendChild(tr);
+        });
+      }
+    }
+
+    // --- RENDER MASTER DPA: EXPANDABLE SUB-KEGIATAN & DETAIL BELANJA ---
+    function renderMasterTable() {
+      const yearData = appData[currentFiscalYear] || { master: [], realisasi: [] };
+      const tbody = document.getElementById('masterTableBody');
+      tbody.innerHTML = '';
+
+      const search = (document.getElementById('searchMasterDPA')?.value || '').toLowerCase();
+      const statusFilter = document.getElementById('filterStatusDPA')?.value || '';
+
+      const allSubkegs = groupMasterBySubkegiatan(yearData.master);
+
+      const filteredSubkegs = allSubkegs.filter(subkeg => {
+        const matchSearch = subkeg.kodeSubKegiatan.toLowerCase().includes(search) ||
+                            subkeg.subKegiatan.toLowerCase().includes(search) ||
+                            subkeg.program.toLowerCase().includes(search) ||
+                            subkeg.kegiatan.toLowerCase().includes(search) ||
+                            subkeg.rekeningList.some(r => r.kodeRekening.toLowerCase().includes(search) || r.uraian.toLowerCase().includes(search));
+        const matchStatus = statusFilter ? subkeg.status === statusFilter : true;
+        return matchSearch && matchStatus;
+      });
+
+      if (filteredSubkegs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #94a3b8; padding: 2.5rem;">Tidak ada Sub-Kegiatan DPA yang sesuai pencarian</td></tr>`;
+        return;
+      }
+
+      filteredSubkegs.forEach((subkeg, index) => {
+        const isExpanded = !!expandedSubKegiatans[subkeg.kodeSubKegiatan];
+
+        let badgeClass = 'badge-info';
+        if (subkeg.status === 'Selesai') badgeClass = 'badge-success';
+        if (subkeg.status === 'Belum Dilaksanakan') badgeClass = 'badge-slate';
+
+        // 1. SUB-KEGIATAN MAIN ROW
+        const trSubkeg = document.createElement('tr');
+        trSubkeg.className = `subkeg-row ${isExpanded ? 'expanded' : ''}`;
+        trSubkeg.setAttribute('data-kode-subkeg', subkeg.kodeSubKegiatan);
+
+        trSubkeg.innerHTML = `
+          <!-- 1. KODE SUB-KEGIATAN -->
+          <td class="font-mono" style="font-weight: 700; color: #0369a1; vertical-align: middle;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <span class="expand-toggle-icon" title="Klik untuk buka/tutup detail belanja">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+              </span>
+              <span>${subkeg.kodeSubKegiatan}</span>
+            </div>
+          </td>
+
+          <!-- 2. PROGRAM / KEGIATAN / SUB-KEGIATAN (PER BARIS TANPA LABEL PROGRAM & KEGIATAN) -->
+          <td>
+            <div class="subkeg-clean-card">
+              <!-- Baris 1: Program -->
+              <div class="subkeg-line-program">
+                <span class="line-text">${subkeg.program}</span>
+              </div>
+
+              <!-- Baris 2: Kegiatan -->
+              <div class="subkeg-line-kegiatan">
+                <span class="line-text">${subkeg.kegiatan}</span>
+              </div>
+
+              <!-- Baris 3: SUB-KEGIATAN (Ukuran font lebih besar dr program & kegiatan) -->
+              <div class="subkeg-line-subkeg">
+                <span class="subkeg-main-title">${subkeg.subKegiatan}</span>
+              </div>
+
+              <!-- Baris 4: STATUS (Proporsional) -->
+              <div class="subkeg-line-status">
+                <span class="badge ${badgeClass}">${subkeg.status}</span>
+                <span class="badge badge-slate" style="font-size: 0.7rem; font-weight: 500;">
+                  ${subkeg.rekeningList.length} Rekening Belanja
+                </span>
+                <span class="subkeg-click-hint">&bull; Klik baris untuk lihat rincian</span>
+              </div>
+            </div>
+          </td>
+
+          <!-- 3. PAGU SUB-KEGIATAN -->
+          <td style="text-align: right; font-weight: 700;" class="font-mono">${formatRupiah(subkeg.totalPagu)}</td>
+
+          <!-- 4. REALISASI ANGGARAN -->
+          <td style="text-align: right; color: #059669; font-weight: 700;" class="font-mono">${formatRupiah(subkeg.totalRealisasi)}</td>
+
+          <!-- 5. SISA ANGGARAN -->
+          <td style="text-align: right; color: ${subkeg.sisaPagu < 0 ? '#dc2626' : '#b45309'}; font-weight: 700;" class="font-mono">${formatRupiah(subkeg.sisaPagu)}</td>
+
+          <!-- 6. SERAPAN (%) -->
+          <td style="text-align: center;">
+            <div style="font-weight: 800; font-size: 0.825rem; color: ${subkeg.persenSerapan > 90 ? '#b91c1c' : '#047857'};">
+              ${subkeg.persenSerapan.toFixed(1)}%
+            </div>
+            <div class="progress-track" style="height: 5px; margin-top: 3px;">
+              <div class="progress-fill ${subkeg.persenSerapan > 90 ? 'danger' : ''}" style="width: ${Math.min(subkeg.persenSerapan, 100)}%;"></div>
+            </div>
+          </td>
+
+          <!-- 7. AKSI (EDIT, DELETE) -->
+          <td style="text-align: center;" class="admin-only" onclick="event.stopPropagation()">
+            <div style="display: flex; gap: 4px; justify-content: center; align-items: center;">
+              <button class="btn btn-secondary btn-sm" onclick="editSubkegiatan('${subkeg.key}')" title="Edit Data Sub-Kegiatan">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                <span>Edit</span>
+              </button>
+              <button class="btn btn-danger btn-sm" onclick="deleteSubkegiatan('${subkeg.key}')" title="Hapus Seluruh Sub-Kegiatan Ini">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Hapus</span>
+              </button>
+            </div>
+          </td>
+        `;
+
+        // Row Click: Toggle expandable detail
+        trSubkeg.addEventListener('click', () => {
+          toggleSubkegiatan(subkeg.kodeSubKegiatan);
+        });
+
+        tbody.appendChild(trSubkeg);
+
+        // 2. NESTED EXPANDABLE DETAIL TABLE ROW
+        if (isExpanded) {
+          const trDetail = document.createElement('tr');
+          trDetail.className = 'subkeg-detail-row';
+          trDetail.id = `detail-row-${subkeg.kodeSubKegiatan.replace(/[^a-zA-Z0-9]/g, '_')}`;
+
+          let detailRowsHtml = '';
+          if (subkeg.rekeningList.length === 0) {
+            detailRowsHtml = `
+              <tr>
+                <td colspan="7" style="text-align: center; color: #64748b; padding: 1.5rem; background: white;">
+                  Belum ada rekening belanja di sub-kegiatan ini. Klik tombol <strong>+ Tambah Rekening Belanja</strong> untuk menambahkan.
+                </td>
+              </tr>
+            `;
+          } else {
+            subkeg.rekeningList.forEach(item => {
+              const rea = getDpaRealisasiSum(item.id);
+              const sisa = Number(item.pagu) - rea;
+              const pct = Number(item.pagu) > 0 ? ((rea / Number(item.pagu)) * 100).toFixed(1) : 0;
+
+              detailRowsHtml += `
+                <tr>
+                  <!-- 1. KODE REKENING BELANJA -->
+                  <td class="font-mono" style="font-weight: 700; color: #0284c7;">${item.kodeRekening}</td>
+
+                  <!-- 2. NAMA BELANJA / SUB BELANJA -->
+                  <td>
+                    <div style="font-weight: 600; color: #0f172a;">${item.uraian}</div>
+                    <div style="font-size: 0.725rem; color: #64748b;">${item.kelompok || 'Belanja Operasi'}</div>
+                  </td>
+
+                  <!-- 3. PAGU -->
+                  <td style="text-align: right;" class="font-mono">${formatRupiah(item.pagu)}</td>
+
+                  <!-- 4. REALISASI -->
+                  <td style="text-align: right; color: #059669; font-weight: 600;" class="font-mono">${formatRupiah(rea)}</td>
+
+                  <!-- 5. SISA -->
+                  <td style="text-align: right; color: ${sisa < 0 ? '#dc2626' : '#b45309'};" class="font-mono">${formatRupiah(sisa)}</td>
+
+                  <!-- 6. PERSEN SERAPAN -->
+                  <td style="text-align: center;">
+                    <span style="font-weight: 700; font-size: 0.8rem; color: ${pct > 90 ? '#b91c1c' : '#0f172a'};">${pct}%</span>
+                    <div class="progress-track" style="height: 4px; margin-top: 2px;">
+                      <div class="progress-fill ${pct > 90 ? 'danger' : ''}" style="width: ${Math.min(pct, 100)}%;"></div>
+                    </div>
+                  </td>
+
+                  <!-- 7. AKSI (EDIT/DELETE) -->
+                  <td style="text-align: center;" class="admin-only">
+                    <div style="display: flex; gap: 4px; justify-content: center;">
+                      <button class="btn btn-secondary btn-sm" onclick="editDpaItem('${item.id}')" title="Edit Rekening Belanja">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                      </button>
+                      <button class="btn btn-danger btn-sm" onclick="deleteDpaItem('${item.id}')" title="Hapus Rekening Belanja">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            });
+          }
+
+          trDetail.innerHTML = `
+            <td colspan="7" style="padding: 0; background-color: #f8fafc;">
+              <div class="subkeg-detail-box">
+                <!-- Header inside detail box -->
+                <div class="detail-box-header">
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                    <span style="font-weight: 700; color: #0f172a; font-size: 0.85rem;">
+                      Rincian Rekening Belanja: <span style="color: #047857;">${subkeg.subKegiatan}</span>
+                    </span>
+                    <span class="badge badge-info" style="font-size: 0.7rem;">Kode: ${subkeg.kodeSubKegiatan}</span>
+                  </div>
+
+                  <button class="btn btn-primary btn-sm admin-only" onclick="openAddDpaModalForSubkeg('${subkeg.kodeSubKegiatan}')">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <span>+ Tambah Rekening Belanja</span>
+                  </button>
+                </div>
+
+                <!-- Detail Table -->
+                <table class="detail-table">
+                  <thead>
+                    <tr>
+                      <th style="width: 150px;">Kode Rekening Belanja</th>
+                      <th>Nama Belanja / Sub Belanja</th>
+                      <th style="text-align: right; width: 140px;">PAGU</th>
+                      <th style="text-align: right; width: 140px;">REALISASI</th>
+                      <th style="text-align: right; width: 140px;">SISA</th>
+                      <th style="text-align: center; width: 110px;">Persen Serapan</th>
+                      <th style="text-align: center; width: 90px;" class="admin-only">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${detailRowsHtml}
+                  </tbody>
+                </table>
+              </div>
+            </td>
+          `;
+
+          tbody.appendChild(trDetail);
+        }
+
+        // Hide admin actions for viewer role
+        if (currentRole === 'viewer') {
+          document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+        }
+      });
+    }
+
+    function toggleSubkegiatan(kodeSubkeg) {
+      expandedSubKegiatans[kodeSubkeg] = !expandedSubKegiatans[kodeSubkeg];
+      renderMasterTable();
+    }
+
+    function toggleAllSubkegiatan() {
+      const yearData = appData[currentFiscalYear] || { master: [] };
+      const subkegs = groupMasterBySubkegiatan(yearData.master);
+      const anyClosed = subkegs.some(s => !expandedSubKegiatans[s.kodeSubKegiatan]);
+
+      subkegs.forEach(s => {
+        expandedSubKegiatans[s.kodeSubKegiatan] = anyClosed;
+      });
+
+      const btn = document.getElementById('btnToggleAllSubkeg');
+      if (btn) {
+        btn.querySelector('span').innerText = anyClosed ? 'Tutup Semua Rincian' : 'Buka Semua Rincian';
+      }
+
+      renderMasterTable();
+    }
+
+    function filterMasterTable() {
+      renderMasterTable();
+    }
+
+    // --- SUB-KEGIATAN MODAL & CRUD ---
+    function openAddSubkegiatanModal() {
+      document.getElementById('formSubkegiatan').reset();
+      document.getElementById('editOriginalSubkegKey').value = '';
+      document.getElementById('modalSubkegTitle').innerText = 'Tambah Sub-Kegiatan Baru (TA ' + currentFiscalYear + ')';
+      openModal('modalSubkegiatan');
+    }
+
+    function editSubkegiatan(subkegKey) {
+      const yearData = appData[currentFiscalYear];
+      const items = yearData.master.filter(m => ((m.kodeSubKegiatan || 'SK-DEFAULT') + '__' + (m.subKegiatan || 'Sub-Kegiatan')) === subkegKey);
+      if (items.length === 0) return;
+
+      const sample = items[0];
+      document.getElementById('editOriginalSubkegKey').value = subkegKey;
+      document.getElementById('subkegProgram').value = sample.program;
+      document.getElementById('subkegKegiatan').value = sample.kegiatan;
+      document.getElementById('subkegKode').value = sample.kodeSubKegiatan || '1.01.01.2.01.0001';
+      document.getElementById('subkegNama').value = sample.subKegiatan;
+      document.getElementById('subkegStatus').value = sample.status || 'Sedang Berjalan';
+
+      document.getElementById('modalSubkegTitle').innerText = 'Edit Sub-Kegiatan: ' + sample.subKegiatan;
+      openModal('modalSubkegiatan');
+    }
+
+    function saveSubkegiatanItem(e) {
+      e.preventDefault();
+      const origKey = document.getElementById('editOriginalSubkegKey').value;
+      const program = document.getElementById('subkegProgram').value.trim();
+      const kegiatan = document.getElementById('subkegKegiatan').value.trim();
+      const kodeSubKegiatan = document.getElementById('subkegKode').value.trim();
+      const subKegiatan = document.getElementById('subkegNama').value.trim();
+      const status = document.getElementById('subkegStatus').value;
+
+      const yearData = appData[currentFiscalYear];
+
+      if (origKey) {
+        // Update all existing rekening items belonging to this sub-kegiatan
+        yearData.master.forEach(item => {
+          const itemKey = (item.kodeSubKegiatan || 'SK-DEFAULT') + '__' + (item.subKegiatan || 'Sub-Kegiatan');
+          if (itemKey === origKey) {
+            item.program = program;
+            item.kegiatan = kegiatan;
+            item.kodeSubKegiatan = kodeSubKegiatan;
+            item.subKegiatan = subKegiatan;
+            item.status = status;
+          }
+        });
+        showToast('Sub-Kegiatan berhasil diperbarui!');
+      } else {
+        // Create an empty shell sub-kegiatan with an initial default belanja so it appears immediately
+        const newDpaId = 'dpa-' + currentFiscalYear + '-' + Date.now().toString().slice(-5);
+        yearData.master.push({
+          id: newDpaId,
+          kodeSubKegiatan,
+          program,
+          kegiatan,
+          subKegiatan,
+          kodeRekening: '5.1.02.01.01.0001',
+          uraian: 'Belanja Awal Sub-Kegiatan ' + subKegiatan,
+          kelompok: 'Belanja Operasi',
+          pagu: 10000000,
+          status
+        });
+        expandedSubKegiatans[kodeSubKegiatan] = true;
+        showToast('Sub-Kegiatan baru berhasil dibuat!');
+      }
+
+      saveStoredData(appData);
+      closeModal('modalSubkegiatan');
+    }
+
+    function deleteSubkegiatan(subkegKey) {
+      if (!confirm('Apakah Anda yakin ingin menghapus Sub-Kegiatan ini beserta SELURUH rekening belanja dan riwayat realisasi di dalamnya?')) return;
+      
+      const yearData = appData[currentFiscalYear];
+      const itemsToDelete = yearData.master.filter(m => ((m.kodeSubKegiatan || 'SK-DEFAULT') + '__' + (m.subKegiatan || 'Sub-Kegiatan')) === subkegKey);
+      const dpaIdsToDelete = itemsToDelete.map(m => m.id);
+
+      yearData.master = yearData.master.filter(m => !dpaIdsToDelete.includes(m.id));
+      yearData.realisasi = yearData.realisasi.filter(r => !dpaIdsToDelete.includes(r.dpaId));
+
+      saveStoredData(appData);
+      showToast('Sub-Kegiatan beserta rekening belanja terkait berhasil dihapus');
+    }
+
+    // --- REKENING BELANJA MODAL & CRUD ---
+    function openAddDpaModal() {
+      populateSubkegTargetSelect();
+      document.getElementById('formDpa').reset();
+      document.getElementById('dpaId').value = '';
+      document.getElementById('modalDpaTitle').innerText = 'Tambah Rekening Belanja DPA (TA ' + currentFiscalYear + ')';
+      openModal('modalDpa');
+    }
+
+    function openAddDpaModalForSubkeg(kodeSubkeg) {
+      populateSubkegTargetSelect(kodeSubkeg);
+      document.getElementById('formDpa').reset();
+      document.getElementById('dpaId').value = '';
+      document.getElementById('dpaSubkegTarget').value = kodeSubkeg;
+      document.getElementById('modalDpaTitle').innerText = 'Tambah Rekening Belanja Baru';
+      openModal('modalDpa');
+    }
+
+    function populateSubkegTargetSelect(selectedKode = '') {
+      const select = document.getElementById('dpaSubkegTarget');
+      select.innerHTML = '';
+      const yearData = appData[currentFiscalYear] || { master: [] };
+      const subkegs = groupMasterBySubkegiatan(yearData.master);
+
+      if (subkegs.length === 0) {
+        const opt = document.createElement('option');
+        opt.value = "";
+        opt.innerText = "-- Buat Sub-Kegiatan Terlebih Dahulu --";
+        select.appendChild(opt);
+        return;
+      }
+
+      subkegs.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.kodeSubKegiatan;
+        opt.innerText = `${s.kodeSubKegiatan} - ${s.subKegiatan} (${s.program})`;
+        if (selectedKode && s.kodeSubKegiatan === selectedKode) {
+          opt.selected = true;
+        }
+        select.appendChild(opt);
+      });
+    }
+
+    function editDpaItem(id) {
+      const yearData = appData[currentFiscalYear];
+      const item = yearData.master.find(m => m.id === id);
+      if (!item) return;
+
+      populateSubkegTargetSelect(item.kodeSubKegiatan);
+      document.getElementById('dpaId').value = item.id;
+      document.getElementById('dpaSubkegTarget').value = item.kodeSubKegiatan || '';
+      document.getElementById('dpaKelompok').value = item.kelompok || 'Belanja Operasi';
+      document.getElementById('dpaKodeRekening').value = item.kodeRekening;
+      document.getElementById('dpaUraian').value = item.uraian;
+      document.getElementById('dpaPagu').value = item.pagu;
+
+      document.getElementById('modalDpaTitle').innerText = 'Edit Rekening Belanja: ' + item.kodeRekening;
+      openModal('modalDpa');
+    }
+
+    function saveDpaItem(e) {
+      e.preventDefault();
+      const id = document.getElementById('dpaId').value;
+      const targetSubkegKode = document.getElementById('dpaSubkegTarget').value;
+      const kelompok = document.getElementById('dpaKelompok').value;
+      const kodeRekening = document.getElementById('dpaKodeRekening').value.trim();
+      const uraian = document.getElementById('dpaUraian').value.trim();
+      const pagu = parseFloat(document.getElementById('dpaPagu').value);
+
+      const yearData = appData[currentFiscalYear];
+      const parentSubkegSample = yearData.master.find(m => m.kodeSubKegiatan === targetSubkegKode);
+
+      const program = parentSubkegSample ? parentSubkegSample.program : 'Program Penunjang Urusan Pemerintahan Daerah';
+      const kegiatan = parentSubkegSample ? parentSubkegSample.kegiatan : 'Kegiatan Perangkat Daerah';
+      const subKegiatan = parentSubkegSample ? parentSubkegSample.subKegiatan : 'Sub-Kegiatan Perangkat Daerah';
+      const status = parentSubkegSample ? parentSubkegSample.status : 'Sedang Berjalan';
+
+      if (id) {
+        // Edit Belanja
+        const index = yearData.master.findIndex(m => m.id === id);
+        if (index !== -1) {
+          yearData.master[index] = {
+            ...yearData.master[index],
+            kodeSubKegiatan: targetSubkegKode,
+            program,
+            kegiatan,
+            subKegiatan,
+            status,
+            kelompok,
+            kodeRekening,
+            uraian,
+            pagu
+          };
+          showToast('Data Rekening Belanja berhasil diperbarui!');
+        }
+      } else {
+        // Add Belanja
+        const newId = 'dpa-' + currentFiscalYear + '-' + Date.now().toString().slice(-5);
+        yearData.master.push({
+          id: newId,
+          kodeSubKegiatan: targetSubkegKode,
+          program,
+          kegiatan,
+          subKegiatan,
+          status,
+          kelompok,
+          kodeRekening,
+          uraian,
+          pagu
+        });
+        expandedSubKegiatans[targetSubkegKode] = true; // Auto expand to show newly added item
+        showToast('Rekening Belanja baru berhasil ditambahkan!');
+      }
+
+      saveStoredData(appData);
+      closeModal('modalDpa');
+    }
+
+    function deleteDpaItem(id) {
+      if (!confirm('Apakah Anda yakin ingin menghapus rekening belanja ini beserta transaksi realisasinya?')) return;
+      const yearData = appData[currentFiscalYear];
+      yearData.master = yearData.master.filter(m => m.id !== id);
+      yearData.realisasi = yearData.realisasi.filter(r => r.dpaId !== id);
+      saveStoredData(appData);
+      showToast('Rekening Belanja berhasil dihapus');
+    }
+
+    // --- RENDER REALISASI TABLE ---
+    function renderRealisasiTable() {
+      const yearData = appData[currentFiscalYear] || { master: [], realisasi: [] };
+      const tbody = document.getElementById('realisasiTableBody');
+      tbody.innerHTML = '';
+
+      const search = (document.getElementById('searchRealisasi')?.value || '').toLowerCase();
+      const qFilter = document.getElementById('filterTriwulanRealisasi')?.value || '';
+
+      const masterMap = {};
+      yearData.master.forEach(m => masterMap[m.id] = m);
+
+      const filtered = yearData.realisasi.filter(item => {
+        const matchSearch = item.nomor.toLowerCase().includes(search) ||
+                            item.uraian.toLowerCase().includes(search) ||
+                            item.penerima.toLowerCase().includes(search);
+        const matchQ = qFilter ? String(item.triwulan) === String(qFilter) : true;
+        return matchSearch && matchQ;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #94a3b8; padding: 2rem;">Belum ada catatan realisasi transaksi SP2D yang sesuai</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(item => {
+        const dpa = masterMap[item.dpaId] || { kodeRekening: '-', subKegiatan: 'Rekening dihapus' };
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="font-mono" style="font-size: 0.8rem;">${item.tanggal}</td>
+          <td class="font-mono" style="font-weight: 700; color: #047857;">${item.nomor}</td>
+          <td>
+            <div style="font-weight: 700; color: #0f172a;">${dpa.subKegiatan}</div>
+            <div class="font-mono" style="font-size: 0.725rem; color: #0284c7;">${dpa.kodeRekening} - ${dpa.uraian || ''}</div>
+          </td>
+          <td>${item.uraian}</td>
+          <td style="color: #475569; font-weight: 500;">${item.penerima}</td>
+          <td style="text-align: right; font-weight: 700; color: #059669;" class="font-mono">${formatRupiah(item.nominal)}</td>
+          <td style="text-align: center;"><span class="badge badge-info">Q${item.triwulan}</span></td>
+          <td style="text-align: center;" class="admin-only">
+            <button class="btn btn-danger btn-sm" onclick="deleteRealisasiItem('${item.id}')" title="Hapus Transaksi">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </td>
+        `;
+
+        if (currentRole === 'viewer') {
+          const adminCol = tr.querySelector('.admin-only');
+          if (adminCol) adminCol.style.display = 'none';
+        }
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterRealisasiTable() {
+      renderRealisasiTable();
+    }
+
+    // --- REALISASI SP2D CRUD ---
+    function openAddRealisasiModal() {
+      const yearData = appData[currentFiscalYear];
+      if (!yearData.master || yearData.master.length === 0) {
+        alert('Silakan input atau impor Master Rekening DPA terlebih dahulu sebelum mencatat realisasi.');
+        return;
+      }
+      document.getElementById('formRealisasi').reset();
+      document.getElementById('realisasiTanggal').value = new Date().toISOString().split('T')[0];
+      populateDpaSelectOptions();
+      updateRealisasiHelper();
+      openModal('modalRealisasi');
+    }
+
+    function populateDpaSelectOptions() {
+      const select = document.getElementById('realisasiDpaId');
+      if (!select) return;
+      select.innerHTML = '';
+      const yearData = appData[currentFiscalYear];
+      (yearData.master || []).forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.id;
+        opt.innerText = `[${item.kodeRekening}] ${item.uraian} (${item.subKegiatan})`;
+        select.appendChild(opt);
+      });
+    }
+
+    function updateRealisasiHelper() {
+      const dpaId = document.getElementById('realisasiDpaId').value;
+      const yearData = appData[currentFiscalYear];
+      const item = yearData.master.find(m => m.id === dpaId);
+      if (item) {
+        const rea = getDpaRealisasiSum(item.id);
+        const sisa = Number(item.pagu) - rea;
+        document.getElementById('realisasiHelperSisaPagu').innerText = formatRupiah(sisa);
+        document.getElementById('realisasiHelperSisaPagu').style.color = sisa < 0 ? '#ef4444' : '#047857';
+      }
+    }
+
+    function saveRealisasiItem(e) {
+      e.preventDefault();
+      const tanggal = document.getElementById('realisasiTanggal').value;
+      const nomor = document.getElementById('realisasiNomor').value.trim();
+      const dpaId = document.getElementById('realisasiDpaId').value;
+      const uraian = document.getElementById('realisasiUraian').value.trim();
+      const penerima = document.getElementById('realisasiPenerima').value.trim();
+      const nominal = parseFloat(document.getElementById('realisasiNominal').value);
+
+      const month = new Date(tanggal).getMonth() + 1;
+      let triwulan = 1;
+      if (month >= 4 && month <= 6) triwulan = 2;
+      else if (month >= 7 && month <= 9) triwulan = 3;
+      else if (month >= 10 && month <= 12) triwulan = 4;
+
+      const yearData = appData[currentFiscalYear];
+      const dpaItem = yearData.master.find(m => m.id === dpaId);
+      if (dpaItem) {
+        const currRea = getDpaRealisasiSum(dpaId);
+        const projected = currRea + nominal;
+        if (projected > Number(dpaItem.pagu)) {
+          if (!confirm(`PERINGATAN DEFISIT ANGGARAN:\nTotal realisasi (${formatRupiah(projected)}) akan melampaui pagu rekening (${formatRupiah(dpaItem.pagu)}).\n\nApakah Anda tetap ingin melanjutkan pencatatan?`)) {
+            return;
+          }
+        }
+      }
+
+      const newId = 'rea-' + currentFiscalYear + '-' + Date.now().toString().slice(-5);
+      yearData.realisasi.push({
+        id: newId,
+        dpaId,
+        tanggal,
+        nomor,
+        uraian,
+        penerima,
+        nominal,
+        triwulan
+      });
+
+      if (dpaItem && dpaItem.status === 'Belum Dilaksanakan') {
+        dpaItem.status = 'Sedang Berjalan';
+      }
+
+      saveStoredData(appData);
+      closeModal('modalRealisasi');
+      showToast('Transaksi realisasi SP2D berhasil dicatat!');
+    }
+
+    function deleteRealisasiItem(id) {
+      if (!confirm('Apakah Anda yakin ingin membatalkan & menghapus transaksi SP2D ini?')) return;
+      const yearData = appData[currentFiscalYear];
+      yearData.realisasi = yearData.realisasi.filter(r => r.id !== id);
+      saveStoredData(appData);
+      showToast('Transaksi realisasi berhasil dihapus');
+    }
+
+    // --- RENDER LAPORAN TABULAR INTERNAL ---
+    function renderLaporanTable() {
+      const yearData = appData[currentFiscalYear] || { master: [], realisasi: [] };
+      const tbody = document.getElementById('laporanTableBody');
+      const tfoot = document.getElementById('laporanTableFoot');
+      tbody.innerHTML = '';
+
+      const periode = document.getElementById('laporanPeriodeSelect')?.value || 'all';
+
+      const filteredRealisasi = yearData.realisasi.filter(r => {
+        if (periode === 'all') return true;
+        if (periode.startsWith('q')) {
+          const qNum = parseInt(periode.replace('q', ''));
+          return r.triwulan === qNum;
+        }
+        if (periode.startsWith('m')) {
+          const mNum = parseInt(periode.replace('m', ''));
+          const rMonth = new Date(r.tanggal).getMonth() + 1;
+          return rMonth === mNum;
+        }
+        return true;
+      });
+
+      let sumPagu = 0;
+      let sumReaPeriode = 0;
+      let sumReaTotal = 0;
+      let sumSisa = 0;
+
+      yearData.master.forEach((item, index) => {
+        const reaPeriode = filteredRealisasi.filter(r => r.dpaId === item.id).reduce((s, r) => s + Number(r.nominal || 0), 0);
+        const reaTotalAllYear = getDpaRealisasiSum(item.id);
+        const sisa = Number(item.pagu) - reaTotalAllYear;
+        const pct = Number(item.pagu) > 0 ? ((reaTotalAllYear / Number(item.pagu)) * 100).toFixed(1) : 0;
+
+        sumPagu += Number(item.pagu || 0);
+        sumReaPeriode += reaPeriode;
+        sumReaTotal += reaTotalAllYear;
+        sumSisa += sisa;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td style="text-align: center; color: #64748b;">${index + 1}</td>
+          <td>
+            <div class="font-mono" style="font-weight: 700; color: #0284c7;">${item.kodeRekening}</div>
+            <div style="font-size: 0.75rem; color: #047857; font-weight: 600;">${item.subKegiatan}</div>
+          </td>
+          <td style="font-weight: 600;">${item.uraian}</td>
+          <td style="text-align: right;" class="font-mono">${formatRupiah(item.pagu)}</td>
+          <td style="text-align: right; color: #2563eb;" class="font-mono">${formatRupiah(reaPeriode)}</td>
+          <td style="text-align: right; color: #059669; font-weight: 700;" class="font-mono">${formatRupiah(reaTotalAllYear)}</td>
+          <td style="text-align: right; color: ${sisa < 0 ? '#dc2626' : '#b45309'};" class="font-mono">${formatRupiah(sisa)}</td>
+          <td style="text-align: center; font-weight: 800;">${pct}%</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const overallPct = sumPagu > 0 ? ((sumReaTotal / sumPagu) * 100).toFixed(1) : 0;
+      tfoot.innerHTML = `
+        <tr>
+          <td colspan="3" style="text-align: right; font-weight: 800; font-size: 0.9rem;">JUMLAH TOTAL:</td>
+          <td style="text-align: right; font-weight: 800;" class="font-mono">${formatRupiah(sumPagu)}</td>
+          <td style="text-align: right; font-weight: 800; color: #2563eb;" class="font-mono">${formatRupiah(sumReaPeriode)}</td>
+          <td style="text-align: right; font-weight: 800; color: #059669;" class="font-mono">${formatRupiah(sumReaTotal)}</td>
+          <td style="text-align: right; font-weight: 800; color: #b45309;" class="font-mono">${formatRupiah(sumSisa)}</td>
+          <td style="text-align: center; font-weight: 800; color: #047857;">${overallPct}%</td>
+        </tr>
+      `;
+    }
+
+    // --- ARSIP MULTI-TAHUN OVERVIEW ---
+    function renderMultiYearArchive() {
+      const tbody = document.getElementById('multiYearTableBody');
+      tbody.innerHTML = '';
+
+      const years = Object.keys(appData).sort().reverse();
+      years.forEach(yr => {
+        const yData = appData[yr] || { master: [], realisasi: [] };
+        const totalP = yData.master.reduce((s, m) => s + Number(m.pagu || 0), 0);
+        const totalR = yData.realisasi.reduce((s, r) => s + Number(r.nominal || 0), 0);
+        const sisa = totalP - totalR;
+        const pct = totalP > 0 ? ((totalR / totalP) * 100).toFixed(2) : '0.00';
+
+        const isCurrent = (yr === currentFiscalYear);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight: 800; font-size: 1rem; color: #0f172a; display: flex; align-items: center; gap: 0.5rem;">
+              ${yr}
+              ${isCurrent ? '<span class="badge badge-success" style="font-size: 0.65rem;">Tahun Aktif</span>' : ''}
+            </div>
+          </td>
+          <td>
+            <span class="badge ${yr < '2026' ? 'badge-slate' : yr === '2026' ? 'badge-info' : 'badge-warning'}">
+              ${yr < '2026' ? 'Telah Ditutup (Audited)' : yr === '2026' ? 'Tahun Berjalan' : 'Rancangan Anggaran'}
+            </span>
+          </td>
+          <td style="text-align: right;" class="font-mono">${formatRupiah(totalP)}</td>
+          <td style="text-align: right; color: #059669; font-weight: 700;" class="font-mono">${formatRupiah(totalR)}</td>
+          <td style="text-align: right; color: #b45309;" class="font-mono">${formatRupiah(sisa)}</td>
+          <td style="text-align: center; font-weight: 800; color: #047857;">${pct}%</td>
+          <td style="text-align: center;">
+            <button class="btn btn-secondary btn-sm" onclick="switchArchiveYear('${yr}')">Buka Data TA ${yr} &rarr;</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function switchArchiveYear(yr) {
+      document.getElementById('selectTahunAnggaran').value = yr;
+      changeFiscalYear(yr);
+      switchTab('dashboard');
+    }
+
+    // --- MODAL UTILS ---
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('active');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.remove('active');
+    }
+
+    function showToast(msg) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>${msg}</span>
+      `;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 4000);
+    }
+
+    // --- IMPORT SYSTEM ---
+    let parsedImportRows = [];
+
+    function openImportModal() {
+      parsedImportRows = [];
+      document.getElementById('importFileInput').value = '';
+      document.getElementById('importPreviewContainer').style.display = 'none';
+      document.getElementById('btnExecuteImport').disabled = true;
+      openModal('modalImport');
+    }
+
+    function toggleImportTemplate() {
+      parsedImportRows = [];
+      document.getElementById('importPreviewContainer').style.display = 'none';
+      document.getElementById('btnExecuteImport').disabled = true;
+    }
+
+    function downloadCurrentImportTemplate() {
+      const type = document.querySelector('input[name="importType"]:checked').value;
+      let csvContent = "";
+      let filename = "";
+
+      if (type === 'master') {
+        csvContent = "Kode Sub-Kegiatan,Program,Kegiatan,Sub-Kegiatan,Kode Rekening,Nama Belanja,Kelompok,Pagu Anggaran,Status\n" +
+                     "1.01.01.2.01.0001,Program Penunjang Urusan Pemerintahan Daerah,Perencanaan Kinerja,Penyusunan DPA,5.1.02.01.01.0024,Belanja Alat Tulis Kantor,Belanja Operasi,45000000,Sedang Berjalan\n" +
+                     "2.16.02.2.01.0001,Program Pengembangan Infrastruktur Digital,Pengelolaan Jaringan,Penyediaan Server,5.2.02.05.01.0005,Belanja Modal Server Komputer,Belanja Modal,250000000,Belum Dilaksanakan";
+        filename = `Template_Master_DPA_${currentFiscalYear}.csv`;
+      } else {
+        csvContent = "Tanggal SP2D,Nomor SP2D,Kode Rekening,Uraian Belanja,Penerima,Nominal\n" +
+                     "2026-03-10,SP2D/2026/0099/LS,5.1.02.01.01.0024,Pembayaran Kertas HVS dan Tinta,CV. Usaha Mandiri,12500000\n" +
+                     "2026-04-15,SP2D/2026/0145/LS,5.2.02.05.01.0005,Uang Muka Server Rak 42U,PT. Solusi Komputindo,100000000";
+        filename = `Template_Realisasi_SP2D_${currentFiscalYear}.csv`;
+      }
+
+      downloadFile(csvContent, filename, 'text/csv;charset=utf-8;');
+      showToast('Template ' + filename + ' berhasil diunduh');
+    }
+
+    function handleFileSelect(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        parseCSV(evt.target.result);
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSV(text) {
+      const lines = text.split(/\r\n|\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 2) {
+        alert('File kosong atau tidak memiliki baris data.');
+        return;
+      }
+
+      const delimiter = lines[0].includes(';') ? ';' : ',';
+      const headers = lines[0].split(delimiter).map(h => h.trim().replace(/^["']|["']$/g, ''));
+      parsedImportRows = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].split(delimiter).map(c => c.trim().replace(/^["']|["']$/g, ''));
+        if (cols.length >= 2) {
+          const rowObj = {};
+          headers.forEach((h, idx) => {
+            rowObj[h] = cols[idx] || '';
+          });
+          parsedImportRows.push(rowObj);
+        }
+      }
+
+      const previewContainer = document.getElementById('importPreviewContainer');
+      const pTable = document.getElementById('importPreviewTable');
+      pTable.querySelector('thead').innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+      
+      const tbody = pTable.querySelector('tbody');
+      tbody.innerHTML = '';
+      parsedImportRows.slice(0, 5).forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = headers.map(h => `<td>${row[h]}</td>`).join('');
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('importRowCount').innerText = parsedImportRows.length;
+      previewContainer.style.display = 'block';
+      document.getElementById('btnExecuteImport').disabled = false;
+      showToast(`${parsedImportRows.length} baris data berhasil dibaca!`);
+    }
+
+    function executeBulkImport() {
+      if (parsedImportRows.length === 0) return;
+      const type = document.querySelector('input[name="importType"]:checked').value;
+      const yearData = appData[currentFiscalYear];
+
+      let importedCount = 0;
+
+      if (type === 'master') {
+        parsedImportRows.forEach((r, idx) => {
+          const kodeSubkeg = r['Kode Sub-Kegiatan'] || r['kode_subkegiatan'] || '1.01.01.2.01.0001';
+          const kodeRekening = r['Kode Rekening'] || r['kode_rekening'] || `5.1.02.01.01.${String(idx+1).padStart(4, '0')}`;
+          const paguNum = parseFloat(String(r['Pagu Anggaran'] || r['pagu'] || 0).replace(/[^0-9.-]+/g, '')) || 0;
+
+          yearData.master.push({
+            id: 'dpa-' + currentFiscalYear + '-' + (Date.now() + idx).toString().slice(-6),
+            kodeSubKegiatan: kodeSubkeg,
+            program: r['Program'] || 'Program Perangkat Daerah',
+            kegiatan: r['Kegiatan'] || 'Kegiatan Umum Perangkat Daerah',
+            subKegiatan: r['Sub-Kegiatan'] || r['sub_kegiatan'] || 'Sub-Kegiatan Penunjang',
+            kelompok: r['Kelompok'] || 'Belanja Operasi',
+            kodeRekening,
+            uraian: r['Nama Belanja'] || r['Uraian Rekening'] || r['uraian'] || 'Uraian Belanja DPA',
+            pagu: paguNum,
+            status: r['Status'] || 'Sedang Berjalan'
+          });
+          importedCount++;
+        });
+      } else {
+        parsedImportRows.forEach((r, idx) => {
+          const nominalNum = parseFloat(String(r['Nominal'] || r['nominal'] || 0).replace(/[^0-9.-]+/g, '')) || 0;
+          const targetKode = (r['Kode Rekening'] || '').trim();
+          let targetDpa = yearData.master.find(m => m.kodeRekening.trim() === targetKode);
+          
+          if (!targetDpa && yearData.master.length > 0) {
+            targetDpa = yearData.master[0];
+          }
+
+          const tgl = r['Tanggal SP2D'] || r['tanggal'] || new Date().toISOString().split('T')[0];
+          const month = new Date(tgl).getMonth() + 1;
+          let q = 1;
+          if (month >= 4 && month <= 6) q = 2;
+          else if (month >= 7 && month <= 9) q = 3;
+          else if (month >= 10 && month <= 12) q = 4;
+
+          if (targetDpa) {
+            yearData.realisasi.push({
+              id: 'rea-' + currentFiscalYear + '-' + (Date.now() + idx).toString().slice(-6),
+              dpaId: targetDpa.id,
+              tanggal: tgl,
+              nomor: r['Nomor SP2D'] || r['nomor'] || `SP2D/IMP/${idx+1}`,
+              uraian: r['Uraian Belanja'] || r['uraian'] || 'Realisasi SP2D',
+              penerima: r['Penerima'] || r['penerima'] || 'Pihak Ketiga',
+              nominal: nominalNum,
+              triwulan: q
+            });
+            importedCount++;
+          }
+        });
+      }
+
+      saveStoredData(appData);
+      closeModal('modalImport');
+      showToast(`Sukses! ${importedCount} data ${type} berhasil diimpor.`);
+    }
+
+    // --- EXPORT SYSTEM ---
+    function openExportModal() {
+      openModal('modalExport');
+    }
+
+    function processExport(format) {
+      closeModal('modalExport');
+      if (format === 'pdf') {
+        printLaporan();
+      } else if (format === 'csv') {
+        exportLaporanCSV();
+      } else if (format === 'excel') {
+        exportLaporanExcel();
+      }
+    }
+
+    function exportLaporanCSV() {
+      const yearData = appData[currentFiscalYear] || { master: [], realisasi: [] };
+      let csv = "No,Kode Sub-Kegiatan,Program,Kegiatan,Sub-Kegiatan,Kode Rekening,Nama Belanja,Pagu Anggaran,Total Realisasi,Sisa Pagu,Persentase Serapan\n";
+
+      yearData.master.forEach((item, index) => {
+        const rea = getDpaRealisasiSum(item.id);
+        const sisa = Number(item.pagu) - rea;
+        const pct = Number(item.pagu) > 0 ? ((rea / Number(item.pagu)) * 100).toFixed(2) : '0.00';
+
+        const row = [
+          index + 1,
+          `"${item.kodeSubKegiatan || ''}"`,
+          `"${item.program}"`,
+          `"${item.kegiatan}"`,
+          `"${item.subKegiatan}"`,
+          `"${item.kodeRekening}"`,
+          `"${item.uraian}"`,
+          item.pagu,
+          rea,
+          sisa,
+          `"${pct}%"`
+        ];
+        csv += row.join(",") + "\n";
+      });
+
+      downloadFile(csv, `Laporan_Realisasi_DPA_TA_${currentFiscalYear}.csv`, 'text/csv;charset=utf-8;');
+      showToast('Laporan CSV berhasil diunduh');
+    }
+
+    function exportLaporanExcel() {
+      const yearData = appData[currentFiscalYear] || { master: [], realisasi: [] };
+      
+      let tableHtml = `
+        <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+          <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Rekap DPA ${currentFiscalYear}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+          <meta http-equiv="content-type" content="text/plain; charset=UTF-8"/>
+        </head>
+        <body>
+          <h2>LAPORAN INTERNAL KENDALI & REALISASI ANGGARAN DPA</h2>
+          <p>Tahun Anggaran: ${currentFiscalYear} | Tanggal Unduh: ${new Date().toLocaleDateString('id-ID')}</p>
+          <table border="1">
+            <tr style="background-color: #047857; color: #ffffff; font-weight: bold;">
+              <th>No</th>
+              <th>Kode Sub-Kegiatan</th>
+              <th>Program</th>
+              <th>Kegiatan</th>
+              <th>Sub-Kegiatan</th>
+              <th>Kode Rekening</th>
+              <th>Nama Belanja</th>
+              <th>Status</th>
+              <th>Pagu Belanja (Rp)</th>
+              <th>Realisasi (Rp)</th>
+              <th>Sisa Anggaran (Rp)</th>
+              <th>% Capaian</th>
+            </tr>
+      `;
+
+      let totalP = 0, totalR = 0, totalS = 0;
+
+      yearData.master.forEach((item, idx) => {
+        const rea = getDpaRealisasiSum(item.id);
+        const sisa = Number(item.pagu) - rea;
+        const pct = Number(item.pagu) > 0 ? ((rea / Number(item.pagu)) * 100).toFixed(2) : '0.00';
+
+        totalP += Number(item.pagu);
+        totalR += rea;
+        totalS += sisa;
+
+        tableHtml += `
+          <tr>
+            <td>${idx + 1}</td>
+            <td style="mso-number-format:'\\@';">${item.kodeSubKegiatan || ''}</td>
+            <td>${item.program}</td>
+            <td>${item.kegiatan}</td>
+            <td>${item.subKegiatan}</td>
+            <td style="mso-number-format:'\\@';">${item.kodeRekening}</td>
+            <td>${item.uraian}</td>
+            <td>${item.status}</td>
+            <td>${item.pagu}</td>
+            <td>${rea}</td>
+            <td>${sisa}</td>
+            <td>${pct}%</td>
+          </tr>
+        `;
+      });
+
+      const totalPct = totalP > 0 ? ((totalR / totalP) * 100).toFixed(2) : '0.00';
+      tableHtml += `
+            <tr style="font-weight: bold; background-color: #f1f5f9;">
+              <td colspan="8" align="right">TOTAL KESELURUHAN</td>
+              <td>${totalP}</td>
+              <td>${totalR}</td>
+              <td>${totalS}</td>
+              <td>${totalPct}%</td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `;
+
+      downloadFile(tableHtml, `Rekap_DPA_TA_${currentFiscalYear}.xls`, 'application/vnd.ms-excel;charset=utf-8;');
+      showToast('Laporan Excel berhasil dibuat dan diunduh');
+    }
+
+    function printLaporan() {
+      const subtitle = document.getElementById('printReportSubtitle');
+      const ts = document.getElementById('printReportTimestamp');
+      const sigDate = document.getElementById('printSignCityDate');
+
+      const now = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const dateStr = now.toLocaleDateString('id-ID', options);
+
+      if (subtitle) subtitle.innerText = `LAPORAN KENDALI & REALISASI ANGGARAN DPA TAHUN ANGGARAN ${currentFiscalYear}`;
+      if (ts) ts.innerText = `Dicetak secara internal pada: ${dateStr} pukul ${now.toLocaleTimeString('id-ID')}`;
+      if (sigDate) sigDate.innerText = `Kota Administrasi, ${dateStr}`;
+
+      switchTab('laporan');
+      window.print();
+    }
+
+    function downloadFile(content, fileName, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }, 0);
+    }
+
+    // --- SUPABASE CONFIG ---
+    function openSupabaseModal() {
+      const savedUrl = localStorage.getItem('sim_dpa_supabase_url') || '';
+      const savedKey = localStorage.getItem('sim_dpa_supabase_key') || '';
+      document.getElementById('supabaseUrlInput').value = savedUrl;
+      document.getElementById('supabaseKeyInput').value = savedKey;
+      openModal('modalSupabase');
+    }
+
+    function saveSupabaseConfig() {
+      const url = document.getElementById('supabaseUrlInput').value.trim();
+      const key = document.getElementById('supabaseKeyInput').value.trim();
+      localStorage.setItem('sim_dpa_supabase_url', url);
+      localStorage.setItem('sim_dpa_supabase_key', key);
+      
+      const badge = document.getElementById('storageBadge');
+      if (url && key) {
+        badge.className = 'badge badge-info';
+        badge.innerText = 'Supabase Configured';
+        showToast('Konfigurasi Supabase tersimpan!');
+      } else {
+        badge.className = 'badge badge-success';
+        badge.innerText = 'LocalStorage';
+        showToast('Mode offline LocalStorage aktif.');
+      }
+      closeModal('modalSupabase');
+    }
+
+    function testSupabaseConnection() {
+      const url = document.getElementById('supabaseUrlInput').value.trim();
+      const key = document.getElementById('supabaseKeyInput').value.trim();
+      if (!url || !key) {
+        alert('Harap isi URL dan Anon Key Supabase terlebih dahulu.');
+        return;
+      }
+      showToast('Menguji koneksi ke ' + url + '...');
+      fetch(`${url}/rest/v1/`, {
+        headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+      })
+      .then(res => {
+        if (res.ok || res.status === 200 || res.status === 404) {
+          alert('Koneksi ke Supabase berhasil tersambung!');
+        } else {
+          alert('Terkoneksi ke endpoint, status HTTP: ' + res.status);
+        }
+      })
+      .catch(err => {
+        alert('Gagal menghubungi Supabase: ' + err.message);
+      });
+    }
+
+    function resetToSampleData() {
+      if (!confirm('Apakah Anda ingin memulihkan sample default data DPA Sub-Kegiatan?')) return;
+      localStorage.removeItem('sim_dpa_database_v2');
+      appData = getStoredData();
+      expandedSubKegiatans = { "1.01.01.2.01.0001": true };
+      refreshAllViews();
+      closeModal('modalSupabase');
+      showToast('Sample data DPA berhasil dipulihkan!');
+    }
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      initNavigation();
+      refreshAllViews();
+    });
+  </script>
+</body>
+</html>
